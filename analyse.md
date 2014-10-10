@@ -7,8 +7,9 @@ De stapel bevat in het begin van het spel alle mogelijke kaarten(27 of 256). Er 
 
 ##Eigenschappen
 Elke kaart heeft een aantal eigenschappen. In de verkleinde versie zijn er 3 eigenschappen:
-   *	De hoeveelheid (1, 2, 3)
-   *	De vorm (rechthoek, driehoek, ovaal)
-   *	De kleur van de vorm (rood, geel, blauw)
+  *	De hoeveelheid (1, 2, 3)
+  *	De vorm (rechthoek, driehoek, ovaal)
+  *	De kleur van de vorm (rood, geel, blauw)
+
 In de originele versie is er nog een extra eigenschap:
-   *	De kleur van de kaart (oranje, groen, paars)
+  * De kleur van de kaart (oranje, groen, paars)
