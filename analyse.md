@@ -17,20 +17,21 @@ In de originele versie is er nog een extra eigenschap:
 ##Wanneer is het een set?
 Een set heeft 3 kaarten. Een set kenmerkt zicht dat binnen elke eigenschappen alles verschillend is, of alles anders is.  Hier zijn wat voorbeelden:
 ![voorbeeld 1](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld1.png)
-kleur: rood, rood, rood  (overal zelfde)
-achtergrond kleur: oranje, oranje, oranje  (overal zelfde)
-vorm: rechthoek, rechthoek, rechthoek  (overal zelfde)
-hoeveelheid: 3, 2, 1    (overal anders)
+kleur: rood, rood, rood  (overal zelfde)<br>
+achtergrond kleur: oranje, oranje, oranje  (overal zelfde)<br>
+vorm: rechthoek, rechthoek, rechthoek  (overal zelfde)<br>
+hoeveelheid: 3, 2, 1    (overal anders)<br>
 **Dus dit is een valid set!**
 ![voorbeeld 2](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld2.png)
-kleur: rood, geel, blauw  (overal anders)
-achtergrond kleur: oranje, groen, paars   (overal anders)
-vorm: rechthoek, rechthoek, rechthoek   (overal gelijk)
-hoeveelheid: 3, 2, 1   (overal anders)
+
+Kleur: rood, geel, blauw  (overal anders) <br>
+Achtergrond kleur: oranje, groen, paars   (overal anders) <br>
+Vorm: rechthoek, rechthoek, rechthoek   (overal gelijk) <br>
+Hoeveelheid: 3, 2, 1   (overal anders) <br>
 **Dus dit is een valid set!**
 ![voorbeeld 3](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld3.png)
-kleur: rood, rood, rood  (overal anders)
-achtergrond kleur: oranje, groen, paars   (overal anders)
-vorm: driehoek, driehoek, driehoek   (overal gelijk)
-hoeveelheid: 3, 3, 2   (**deels gelijk, deels anders**)
+kleur: rood, rood, rood  (overal anders)<br>
+achtergrond kleur: oranje, groen, paars   (overal anders)<br>
+vorm: driehoek, driehoek, driehoek   (overal gelijk)<br>
+hoeveelheid: 3, 3, 2   (**deels gelijk, deels anders**)<br>
 **Dus dit niet een valid set!**
