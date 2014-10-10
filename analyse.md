@@ -16,20 +16,19 @@ In de originele versie is er nog een extra eigenschap:
 
 ##Wanneer is het een set?
 Een set heeft 3 kaarten. Een set kenmerkt zicht dat binnen elke eigenschappen alles verschillend is, of alles anders is.  Hier zijn wat voorbeelden:
-![voorbeeld 1](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld1.png)
+![voorbeeld 1](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld1.png)<br>
 kleur: rood, rood, rood  (overal zelfde)<br>
 achtergrond kleur: oranje, oranje, oranje  (overal zelfde)<br>
 vorm: rechthoek, rechthoek, rechthoek  (overal zelfde)<br>
 hoeveelheid: 3, 2, 1    (overal anders)<br>
-**Dus dit is een valid set!**
-![voorbeeld 2](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld2.png)
-
+**Dus dit is een valid set!**<br>
+![voorbeeld 2](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld2.png)<br>
 Kleur: rood, geel, blauw  (overal anders) <br>
 Achtergrond kleur: oranje, groen, paars   (overal anders) <br>
 Vorm: rechthoek, rechthoek, rechthoek   (overal gelijk) <br>
 Hoeveelheid: 3, 2, 1   (overal anders) <br>
-**Dus dit is een valid set!**
-![voorbeeld 3](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld3.png)
+**Dus dit is een valid set!**<br>
+![voorbeeld 3](https://raw.githubusercontent.com/SijmenHuizenga/SubSet/master/afbeeldingen/voorbeeld3.png)<br>
 kleur: rood, rood, rood  (overal anders)<br>
 achtergrond kleur: oranje, groen, paars   (overal anders)<br>
 vorm: driehoek, driehoek, driehoek   (overal gelijk)<br>
