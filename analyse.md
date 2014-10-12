@@ -13,7 +13,7 @@ Elke kaart heeft een aantal eigenschappen. In de verkleinde versie zijn er 3 eig
 
 In de originele versie is er nog een extra eigenschap:
   * De kleur van de kaart (oranje, groen, paars)
-  * 
+
 Alle mogelijke kaarten zijn te vinden [hier](https://github.com/SijmenHuizenga/SubSet/blob/master/afbeeldingen/27Kaarten.png) en [hier](https://github.com/SijmenHuizenga/SubSet/blob/master/afbeeldingen/81Kaarten.png).
 
 ##Wanneer is het een set?
