@@ -13,6 +13,8 @@ Elke kaart heeft een aantal eigenschappen. In de verkleinde versie zijn er 3 eig
 
 In de originele versie is er nog een extra eigenschap:
   * De kleur van de kaart (oranje, groen, paars)
+  * 
+Alle mogelijke kaarten zijn te vinden [hier](https://github.com/SijmenHuizenga/SubSet/blob/master/afbeeldingen/27Kaarten.png) en [hier](https://github.com/SijmenHuizenga/SubSet/blob/master/afbeeldingen/81Kaarten.png).
 
 ##Wanneer is het een set?
 Een set heeft 3 kaarten. Een set kenmerkt zicht dat binnen elke eigenschappen alles verschillend is, of alles anders is.  Hier zijn wat voorbeelden:
