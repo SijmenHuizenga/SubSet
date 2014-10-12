@@ -1,4 +1,4 @@
-# Analyse SubSet
+#subset
 
 ##Dit is hoe de game werkt
 In beeld heb je een aantal kaarten. Dit aantal kaarten varieert tussen 9 en 12 afhankelijk of je het originele of een versimpelde verzie speelt. De bedoeling is om drie kaarten te selecteren die een ‘set’ vormen. Als deze kaarten een set vormen, worden deze kaarten van het bord verwijdert en komen er nieuwe kaarten uit de stapel. 
