@@ -1,4 +1,4 @@
-# Analyse SubSet
+#subset
 
 ##Dit is hoe de game werkt
 In beeld heb je een aantal kaarten. Dit aantal kaarten varieert tussen 9 en 12 afhankelijk of je het originele of een versimpelde verzie speelt. De bedoeling is om drie kaarten te selecteren die een ‘set’ vormen. Als deze kaarten een set vormen, worden deze kaarten van het bord verwijdert en komen er nieuwe kaarten uit de stapel. 
@@ -13,6 +13,8 @@ Elke kaart heeft een aantal eigenschappen. In de verkleinde versie zijn er 3 eig
 
 In de originele versie is er nog een extra eigenschap:
   * De kleur van de kaart (oranje, groen, paars)
+
+Alle mogelijke kaarten zijn te vinden [hier](https://github.com/SijmenHuizenga/SubSet/blob/master/afbeeldingen/27Kaarten.png) en [hier](https://github.com/SijmenHuizenga/SubSet/blob/master/afbeeldingen/81Kaarten.png).
 
 ##Wanneer is het een set?
 Een set heeft 3 kaarten. Een set kenmerkt zicht dat binnen elke eigenschappen alles verschillend is, of alles anders is.  Hier zijn wat voorbeelden:
