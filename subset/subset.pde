@@ -42,40 +42,23 @@ int selectedScreen = SCREEN_MENU;
 boolean forceScreenUpdate = true;
 String[] cardStack = null;
 
-int buttonAmount = 5;
+int buttonAmount = 7;
 int[][] buttonData = new int[buttonAmount][];
 String[] buttonTxt = new String[buttonAmount];
 
 PImage star;
 
 void setup() {
-  star = loadImage("ster.png");
-
+  star = loadImage(dataPath("ster.png"));
+  initScoreBoard();
   size(800, 600);
-  buttonData[0] = new int[] {
-    1, SCREEN_MENU, 40, 150, 350, 140, 255, 0
-  };
-  buttonTxt[0] = "Start simple mode";
-
-  buttonData[1] = new int[] {
-    2, SCREEN_MENU, 410, 150, 350, 140, 255, 0
-  };
-  buttonTxt[1] = "Start original mode";
-
-  buttonData[2] = new int[] {
-    3, SCREEN_MENU, 120, 340, 550, 100, color(160, 0, 0), 255
-  };
-  buttonTxt[2] = "ScoreBoard*";
-
-  buttonData[3] = new int[] {
-    4, SCREEN_MENU, 120, 450, 250, 100, color(160, 0, 0), 255
-  };
-  buttonTxt[3] = "About and Rules";
-
-  buttonData[4] = new int[] {
-    4, SCREEN_MENU, 420, 450, 250, 100, color(160, 0, 0), 255
-  };
-  buttonTxt[4] = "Load saved Game";
+  addButton("Start simple mode", 1, SCREEN_MENU, 40, 150, 350, 140, 255, 0);
+  addButton("Start original mode", 2, SCREEN_MENU, 410, 150, 350, 140, 255, 0);
+  addButton("ScoreBoard*", 3, SCREEN_MENU, 120, 340, 550, 100, color(160, 0, 0), 255);
+  addButton("About and Rules", 4, SCREEN_MENU, 120, 450, 250, 100, color(160, 0, 0), 255);
+  addButton("Load saved Game", 5, SCREEN_MENU, 420, 450, 250, 100, color(160, 0, 0), 255);
+  addButton("Back to Menu", 6, SCREEN_SCORES, 520, 470, 250, 100, color(160, 0, 0), 255);
+  addButton("Back to Menu", 7, SCREEN_ABOUT, 520, 470, 250, 100, color(160, 0, 0), 255);
 }
 
 void draw() {
@@ -88,6 +71,8 @@ void draw() {
 
 void mouseClicked() {
   for (int[] but : buttonData) {  
+    if(but == null)
+      continue;
     if (but[BUTTON_SCREEN] != selectedScreen) {
       continue;
     }

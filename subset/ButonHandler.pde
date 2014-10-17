@@ -1,3 +1,12 @@
+int buttonCounter = 0;
+void addButton(String naam, int id, int menu, int x, int y, int wid, int hei, int bgCol, int fgCol){
+  buttonData[buttonCounter] = new int[] {
+    id, menu, x, y, wid, hei, bgCol, fgCol
+  };
+  buttonTxt[buttonCounter] = naam;
+  buttonCounter++;
+}
+
 void doButtonAction(int buttonID){
       switch(buttonID){
            case 1: startGame(false); break;
@@ -18,18 +27,23 @@ void doButtonAction(int buttonID){
           cardClickedAction(buttonID);
 }
 
-void cardClickedAction(int id){
-}
-
 void startGame(boolean original){
 }
 void showScoreScreen(){
+  selectedScreen = SCREEN_SCORES;
+  forceScreenUpdate = true;
 }
 void showAboutScreen(){
-}
-void loadGame(){
+  selectedScreen = SCREEN_ABOUT;
+  forceScreenUpdate = true;
 }
 void backToMenu(){
+  selectedScreen = SCREEN_MENU;
+  forceScreenUpdate = true;
+}
+void cardClickedAction(int id){
+}
+void loadGame(){
 }
 void clearScores(){
 }

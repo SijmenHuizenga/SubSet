@@ -2,6 +2,8 @@ void drawButtons(){
   for(int i = 0; i < buttonData.length; i++){
     int[] but = buttonData[i];
     String txt = buttonTxt[i];
+    if(but == null || but[BUTTON_SCREEN] != selectedScreen)
+      continue;
     if(but[BUTTON_ID] >100 && but[BUTTON_ID] < 200)
       drawCard(but[BUTTON_ID]);
     boolean doStar = txt.contains("*");
@@ -45,8 +47,11 @@ void drawMenu(){
   text("Door Sijmen Huizenga", width/2, 125);
 }
 void drawGame(){
+  background(0);
 }
 void drawScores(){  
+  background(0);
 }
 void drawAbout(){
+  background(0);
 }
