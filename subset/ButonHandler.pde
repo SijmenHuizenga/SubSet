@@ -36,6 +36,7 @@ void showScoreScreen(){
 void showAboutScreen(){
   selectedScreen = SCREEN_ABOUT;
   forceScreenUpdate = true;
+  saveScoreBoard(scoreBoard, dataPath("high.scores"));
 }
 void backToMenu(){
   selectedScreen = SCREEN_MENU;

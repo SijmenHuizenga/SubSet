@@ -1,13 +1,22 @@
 void initScoreBoard(){
-  
+  String file = dataPath("high.scores");
+  if(!new File(file).exists()){
+    scoreBoard = new String[2][0][0];
+    return;
+  }
+  scoreBoard = loadScoreBoard(file);
 }
 
 void saveScoreBoard(String[][][] board, String file){
   String[] out = new String[board.length];
   int i = 0;
   for(String[][] list : board){
+    if(list == null)
+      continue;
     out[i] = "";
     for(String[] person : list){
+     if(person == null)
+        continue;
      out[i] += person[0] + ";";
      out[i] += person[1] + ";";
     }

@@ -1,4 +1,3 @@
-
 final int SCREEN_MENU = 0;
 final int SCREEN_GAME = 1;
 final int SCREEN_SCORES = 2;
@@ -45,6 +44,8 @@ String[] cardStack = null;
 int buttonAmount = 7;
 int[][] buttonData = new int[buttonAmount][];
 String[] buttonTxt = new String[buttonAmount];
+
+String[][][] scoreBoard;
 
 PImage star;
 
