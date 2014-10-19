@@ -11,6 +11,7 @@ void drawButtons(){
     if(but == null)
       continue;
     fill(but[BUTTON_BGCOLOR]);
+    noStroke();
     rect(but[BUTTON_X], but[BUTTON_Y], but[BUTTON_WIDTH], but[BUTTON_HEIGHT]);
     
     textSize(but[BUTTON_HEIGHT]/4);
@@ -51,6 +52,43 @@ void drawGame(){
 }
 void drawScores(){  
   background(0);
+  String[][] simpleScores = scoreBoard[0];
+  String[][] originalScores = scoreBoard[1];
+  fill(255);
+  if(simpleScores.length == 0 && originalScores.length == 0){
+    textSize(30);
+    textAlign(CENTER);
+    text("No scores saved!", width/2, height/2);
+  }else{
+    textSize(50);
+    fill(255);
+    textAlign(CENTER);
+    int marge = 25;
+    text("Easy Mode", width/4, height/10);
+    text("Original Mode", width/4*3, height/10);
+    stroke(255);
+    line(width/2, 0, width/2, height/2+marge*2);
+    drawScoreList(simpleScores, marge, 120, width/2-marge*2, 40);
+    drawScoreList(originalScores, width/2+marge, 120, width/2-marge*2, 40);
+  }
+}
+void drawScoreList(String[][] list, int x, int y, int wid, int size){
+  fill(255);
+  textSize(size);
+  for(int i = 0; i < list.length; i++){
+    String name = list[i][0];
+    String score = list[i][1];
+    println(name);
+    textAlign(LEFT);
+    if(i == 0){
+      text("    " + name, x, y+(i*(size+10)));
+      image(star, x-6, y-size+6, size, size);
+    }else{
+      text((i+1) + ". " + name, x, y+(i*(size+10)));
+    }
+    textAlign(RIGHT);
+    text(score, x+wid, y+(i*(size+10)));
+  }
 }
 void drawAbout(){
   background(0);

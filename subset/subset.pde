@@ -35,9 +35,11 @@ final char C_BG_GREEN = 'G';
 final char C_BG_PURPLE = 'P';
 final char C_BG_NONE = 'N';
 
+String scoresFile;
+
 
 int backgroundColor = 0;
-int selectedScreen = SCREEN_MENU;
+int selectedScreen = SCREEN_SCORES;
 boolean forceScreenUpdate = true;
 String[] cardStack = null;
 
@@ -50,6 +52,7 @@ String[][][] scoreBoard;
 PImage star;
 
 void setup() {
+  scoresFile = dataPath("high.scores");
   star = loadImage(dataPath("ster.png"));
   initScoreBoard();
   size(800, 600);

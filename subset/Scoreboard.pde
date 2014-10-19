@@ -1,10 +1,9 @@
 void initScoreBoard(){
-  String file = dataPath("high.scores");
-  if(!new File(file).exists()){
+  if(!new File(scoresFile).exists()){
     scoreBoard = new String[2][0][0];
     return;
   }
-  scoreBoard = loadScoreBoard(file);
+  scoreBoard = loadScoreBoard(scoresFile);
 }
 
 void saveScoreBoard(String[][][] board, String file){
