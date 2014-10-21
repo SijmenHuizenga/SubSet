@@ -11,14 +11,16 @@ void saveScoreBoard(String[][][] board, String file){
   String[] out = new String[board.length];
   int i = 0;
   for(String[][] list : board){
-    if(list == null)
-      continue;
-    out[i] = "";
-    for(String[] person : list){
-     if(person == null)
-        continue;
-     out[i] += person[0] + ";";
-     out[i] += person[1] + ";";
+    if(list == null){
+      out[i] = "\n";
+    }else{
+      out[i] = "";
+      for(String[] person : list){
+       if(person == null)
+          continue;
+       out[i] += person[0] + ";";
+       out[i] += person[1] + ";";
+      }
     }
     i++;
   }
@@ -27,7 +29,7 @@ void saveScoreBoard(String[][][] board, String file){
 
 String[][][] loadScoreBoard(String file){
   String[] in = loadStrings(file);
-  String[][][] out = new String[in.length][][];
+  String[][][] out = new String[2][][];
   int list = 0;
   for(String line : in){
     String[] vals = line.split(";");
@@ -45,11 +47,17 @@ String[][][] loadScoreBoard(String file){
     }
     list++;
   }
+  for(int i = 0; i < out.length; i++){
+    if(out[i] == null)
+       out[i] = new String[0][];
+  }
   return out;
 }
 
 void orderScoreBoard(String[][][] board){
   for(String[][] list : board){
+    if(list == null || list.length == 0)
+       continue;
     boolean swiched = false;
     do{
       swiched = false;

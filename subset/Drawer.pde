@@ -14,11 +14,11 @@ void drawButtons(){
     noStroke();
     rect(but[BUTTON_X], but[BUTTON_Y], but[BUTTON_WIDTH], but[BUTTON_HEIGHT]);
     
-    textSize(but[BUTTON_HEIGHT]/4);
+    textSize(27);
     
     fill(but[BUTTON_FGCOLOR]);
-    textAlign(CENTER);
-    text(txt, but[BUTTON_X]+(but[BUTTON_WIDTH]/2), but[BUTTON_Y]+(but[BUTTON_HEIGHT]/2)+(but[BUTTON_HEIGHT]/16));
+    textAlign(CENTER, CENTER);
+    text(txt, but[BUTTON_X]+(but[BUTTON_WIDTH]/2), but[BUTTON_Y]+(but[BUTTON_HEIGHT]/2.3));
     if(doStar){
       image(star, but[BUTTON_X]+10, but[BUTTON_Y]+12, but[BUTTON_HEIGHT]-20, but[BUTTON_HEIGHT]-20);
       image(star, but[BUTTON_X]+but[BUTTON_WIDTH]-but[BUTTON_HEIGHT]+12, but[BUTTON_Y]+10, but[BUTTON_HEIGHT]-20, but[BUTTON_HEIGHT]-20);
@@ -49,26 +49,53 @@ void drawMenu(){
 }
 void drawGame(){
   background(0);
+  stroke(150, 150, 150);
+  noFill();
+  rect(270, 5, 520, 590);
+  for(int i = 0; i < 3; i++){
+    rect(10+i*89, 420, 71, 120);
+  }
+  String stats = "";
+  stats += "Current Time: " + timeFloatToString(gameTime) + "\n";
+  stats += "Found Sets: " + foundSets + "\n";
+  stats += "Cards in Stacdk: " + cardsInStack + "\n";
+  stats += "High Score: " + highScore + "\n";
+  stats += "Possible Sets: " + possibleSets + "\n";
+  stats += "Wrong Sets: " + wrongSets + "\n";
+  textSize(20);
+  textAlign(LEFT, TOP);
+  fill(255);
+  text(stats, 10, 10);
 }
 void drawScores(){  
   background(0);
   String[][] simpleScores = scoreBoard[0];
   String[][] originalScores = scoreBoard[1];
+  //background
+  textSize(50);
   fill(255);
-  if(simpleScores.length == 0 && originalScores.length == 0){
+  textAlign(CENTER);
+  int marge = 25;
+  text("Easy Mode", width/4, height/10);
+  text("Original Mode", width/4*3, height/10);
+  stroke(255);
+  line(width/2, 0, width/2, height/2+marge*2);
+  
+  if(simpleScores.length == 0){
+    fill(255);
     textSize(30);
     textAlign(CENTER);
-    text("No scores saved!", width/2, height/2);
+    text("No scores saved!", width/4, height/4);
   }else{
-    textSize(50);
-    fill(255);
-    textAlign(CENTER);
-    int marge = 25;
-    text("Easy Mode", width/4, height/10);
-    text("Original Mode", width/4*3, height/10);
-    stroke(255);
-    line(width/2, 0, width/2, height/2+marge*2);
     drawScoreList(simpleScores, marge, 120, width/2-marge*2, 40);
+  }
+  
+  if(originalScores.length == 0){
+    fill(255);
+    textSize(30);
+    textAlign(CENTER);
+    text("No scores saved!", width/4*3, height/4);
+  }else{
     drawScoreList(originalScores, width/2+marge, 120, width/2-marge*2, 40);
   }
 }

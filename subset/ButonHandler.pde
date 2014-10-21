@@ -28,6 +28,21 @@ void doButtonAction(int buttonID){
 }
 
 void startGame(boolean original){
+  gameStatus = (original ? GAME_ORIGINAL : GAME_SIMPLE);
+  selectedScreen = SCREEN_GAME;
+  forceScreenUpdate = true;
+  
+  stack = getCardSet(!original);
+  shuffleStack(stack);
+  
+  timerStartTime = getUnixTime();
+  gameTime = 0;
+  
+  if(scoreBoard[original ? 1 : 0].length > 0){
+    highScore = scoreBoard[original ? 1 : 0][0][1];
+  }else{
+    highScore = "-";
+  }
 }
 void showScoreScreen(){
   selectedScreen = SCREEN_SCORES;
@@ -47,8 +62,20 @@ void cardClickedAction(int id){
 void loadGame(){
 }
 void clearScores(){
+  scoreBoard = new String[2][0][0];
+  forceScreenUpdate = true;
 }
 void saveAndQuit(){
+  saveGame();
+  backToMenu();
+  stack = null;
+  onTable = null;
+  gameTime = 0;
+  highScore = null;
+  foundSets = 0;
+  cardsInStack = 0;
+  possibleSets = 0;
+  wrongSets = 0;
 }
 void orderCards(){
 }

@@ -21,6 +21,10 @@ final int BG_GREEN = color(79, 169, 45);
 final int BG_PURPLE = color(107, 55, 138);
 final int BG_NONE = color(200, 200, 200);
 
+final int GAME_OFF = 0;
+final int GAME_SIMPLE = 1;
+final int GAME_ORIGINAL = 2;
+
 final char C_COL_RED = 'R';
 final char C_COL_BLUE = 'B';
 final char C_COL_YELLOW = 'C';
@@ -37,15 +41,21 @@ final char C_BG_NONE = 'N';
 
 String scoresFile;
 
-
 int backgroundColor = 0;
-int selectedScreen = SCREEN_SCORES;
+int selectedScreen = SCREEN_MENU;
+int gameStatus = GAME_OFF;
 boolean forceScreenUpdate = true;
 String[] cardStack = null;
 
-int buttonAmount = 7;
+int buttonAmount = 200;
 int[][] buttonData = new int[buttonAmount][];
 String[] buttonTxt = new String[buttonAmount];
+
+StringList stack, onTable;
+float gameTime = -1;
+int timerStartTime;
+String highScore;
+int foundSets, cardsInStack, possibleSets, wrongSets;
 
 String[][][] scoreBoard;
 
@@ -56,16 +66,27 @@ void setup() {
   star = loadImage(dataPath("ster.png"));
   initScoreBoard();
   size(800, 600);
+  //menu buttons
   addButton("Start simple mode", 1, SCREEN_MENU, 40, 150, 350, 140, 255, 0);
   addButton("Start original mode", 2, SCREEN_MENU, 410, 150, 350, 140, 255, 0);
   addButton("ScoreBoard*", 3, SCREEN_MENU, 120, 340, 550, 100, color(160, 0, 0), 255);
   addButton("About and Rules", 4, SCREEN_MENU, 120, 450, 250, 100, color(160, 0, 0), 255);
   addButton("Load saved Game", 5, SCREEN_MENU, 420, 450, 250, 100, color(160, 0, 0), 255);
+  //score board
   addButton("Back to Menu", 6, SCREEN_SCORES, 520, 470, 250, 100, color(160, 0, 0), 255);
+  addButton("Clear Scores", 8, SCREEN_SCORES, 30, 470, 250, 100, color(160, 0, 0), 255);
+  //about
   addButton("Back to Menu", 7, SCREEN_ABOUT, 520, 470, 250, 100, color(160, 0, 0), 255);
+  //game
+  addButton("Save and Quit", 9, SCREEN_GAME, 10, 220, 250, 40, color(160, 0, 0), 255);
+  addButton("Order Cards", 10, SCREEN_GAME, 10, 270, 250, 40, color(160, 0, 0), 255);
+  addButton("Hint", 11, SCREEN_GAME, 10, 320, 250, 40, color(160, 0, 0), 255);
+  addButton("Give Up", 12, SCREEN_GAME, 10, 370, 250, 40, color(160, 0, 0), 255);
+  addButton("Select Cards!", 13, SCREEN_GAME, 10, height-50, 250, 40, color(150, 150, 150), 255);
 }
 
 void draw() {
+  updateGameTimer();
   if (forceScreenUpdate) {
     drawScreen();
     drawButtons();
@@ -73,7 +94,7 @@ void draw() {
   }
 }
 
-void mouseClicked() {
+void mousePressed() {
   for (int[] but : buttonData) {  
     if(but == null)
       continue;
@@ -90,7 +111,6 @@ void mouseClicked() {
 
 public void exit(){
   saveScoreBoard(scoreBoard, scoresFile);
-  println("stopped!");
   super.exit();
 }
 
