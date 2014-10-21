@@ -15,7 +15,7 @@ void doButtonAction(int buttonID){
            case 4: showAboutScreen();break;
            case 5: loadGame();break;
            case 6: backToMenu();break;    //deze staat er twee keer in omdat er twee verschillende 
-           case 7: backToMenu();break;  // knoppen zijn die deze actie uitvoeren.
+           case 7: backToMenu();break;    // knoppen zijn die deze actie uitvoeren.
            case 8: clearScores();break;
            case 9: saveAndQuit();break;
            case 10: orderCards();break;

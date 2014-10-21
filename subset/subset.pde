@@ -88,6 +88,12 @@ void mouseClicked() {
 
 }
 
+public void exit(){
+  saveScoreBoard(scoreBoard, scoresFile);
+  println("stopped!");
+  super.exit();
+}
+
 
 
 

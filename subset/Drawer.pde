@@ -78,7 +78,6 @@ void drawScoreList(String[][] list, int x, int y, int wid, int size){
   for(int i = 0; i < list.length; i++){
     String name = list[i][0];
     String score = list[i][1];
-    println(name);
     textAlign(LEFT);
     if(i == 0){
       text("    " + name, x, y+(i*(size+10)));

@@ -4,6 +4,7 @@ void initScoreBoard(){
     return;
   }
   scoreBoard = loadScoreBoard(scoresFile);
+  orderScoreBoard(scoreBoard);
 }
 
 void saveScoreBoard(String[][][] board, String file){
@@ -45,4 +46,21 @@ String[][][] loadScoreBoard(String file){
     list++;
   }
   return out;
+}
+
+void orderScoreBoard(String[][][] board){
+  for(String[][] list : board){
+    boolean swiched = false;
+    do{
+      swiched = false;
+      for(int i = 0; i < list.length-1; i++){
+        if(float(list[i][1].replace(":", ".")) > float(list[i+1][1].replace(":", "."))){
+          String[] keep = list[i];
+          list[i] = list[i+1];
+          list[i+1] = keep;
+          swiched = true;
+        }
+      }
+    }while(swiched);
+  }
 }
