@@ -1,2 +1,0 @@
-nu 1000 miljoen groepen van 9 langs zien komen
-Nu zijn er 14194 uniqe groepjes gevonden.

@@ -67,7 +67,7 @@ public class SubSet extends PApplet {
 	int timerStartTime;
 	String highScore;
 	int foundSets, cardsInStack, possibleSets, wrongSets;
-	int[] selectedCards = new int[3];
+	String[] selectedCards = new String[3];
 	
 	int[] draggingCard = null;
 	int[] draggingCardOriginalPos = null;
@@ -133,7 +133,7 @@ public class SubSet extends PApplet {
 		int[] but = getButtonAtLocation(mouseX, mouseY, selectedScreen);
 		if(but == null)
 			return;
-		if (but[BUTTON_ID] >= 100 && but[BUTTON_ID] < 200)
+		if(selectedScreen == SCREEN_GAME)
 			cardReleaseAction();
 	}
 
@@ -160,11 +160,11 @@ public class SubSet extends PApplet {
 		return -1;
 	}
 	
-	int[] getButton(int id) {
+	int getButtonLocation(int id) {
 		for (int i = 0; i < buttonData.length; i++)
 			if (buttonData[i] != null && buttonData[i][BUTTON_ID] == id)
-				return buttonData[i];
-		return null;
+				return i;
+		return -1;
 	}
 	
 	void doButtonAction(int buttonID) {
@@ -273,11 +273,31 @@ public class SubSet extends PApplet {
 					buttonData[i] = null;
 					buttonTxt[i] = null;
 				}
+		selectedCards = new String[3];
 	}
 	
 	void orderCards() {
-		
-		
+		selectedCards = new String[3];
+		int idCounter = 100;
+		int x = 0, y = 0;
+		int butLoc;
+		while((butLoc = getButtonLocation(idCounter)) != -1){
+			Rectangle rect = getDefaultCardLocation(x, y);
+			
+			int[] button = buttonData[butLoc];
+			button[BUTTON_X] = rect.x;
+			button[BUTTON_Y] = rect.y;
+			button[BUTTON_WIDTH] = rect.width;
+			button[BUTTON_HEIGHT] = rect.height;
+			println(x+"+"+y);
+			idCounter++;
+			y++;
+			if(y == 3){
+				y = 0;
+				x++;
+			}
+		}
+		forceScreenUpdate = true;
 	}
 	
 	void giveHint() {}
@@ -396,6 +416,8 @@ public class SubSet extends PApplet {
 	}
 	
 	void drawGame() {
+		updateGameInfo();
+		
 		background(0);
 		stroke(150, 150, 150);
 		noFill();
@@ -494,14 +516,11 @@ public class SubSet extends PApplet {
 			highScore = "-";
 		}
 		int idCounter = 100;
-		for (int i = 1; i <= (original ? 4 : 3); i++) {
-			for (int j = 1; j <= 3; j++) {
-				addCardToScreen(idCounter, i - 1, j - 1);
+		for (int i = 0; i < (original ? 4 : 3); i++) {
+			for (int j = 0; j < 3; j++) {
+				addCardToScreen(idCounter, i, j);
 				idCounter++;
 			}
-		}
-		for (int i = 0; i < selectedCards.length; i++) {
-			selectedCards[i] = -1;
 		}
 	}
 	
@@ -513,24 +532,59 @@ public class SubSet extends PApplet {
 		return new Rectangle(10 + nr * 89, 420, 71, 120);
 	}
 	
-	int addSelectedCard(int cardID) {
+	int addSelectedCard(String card) {
 		for (int i = 0; i < selectedCards.length; i++) {
-			if (selectedCards[i] == -1) {
-				selectedCards[i] = cardID;
+			if (selectedCards[i] == null) {
+				selectedCards[i] = card;
 				return i;
 			}
 		}
 		return -1;
 	}
 	
-	void removeSelectedCard(int cardID) {
+	void removeSelectedCard(String card) {
 		for (int i = 0; i < selectedCards.length; i++) {
-			if (selectedCards[i] == cardID) {
-				selectedCards[i] = -1;
+			if (selectedCards[i] != null && selectedCards[i].equals(card)) {
+				selectedCards[i] = null;
 			}
 		}
 	}
 	
+	boolean isSet(String[] cards){
+		for(int i = 0; i < cards[0].length(); i++){
+			String curCheck = "";
+			for(int j = 0; j < cards.length; j++){
+				curCheck += cards[j].charAt(i);
+			}
+			boolean good = isSameOrDiff(curCheck);
+			if(!good)
+				return false;
+		}
+		return true;
+	}
+	
+	//wtf is this? look at this: http://rick.measham.id.au/paste/explain.pl?regex=%5E%28%3F%3A%28.%29%28%3F%21.*%3F%5C1%29%29*%24
+	boolean isSameOrDiff(String toCheck) {
+		return toCheck.matches(toCheck.charAt(0)+"+") || toCheck.matches("^(?:(.)(?!.*?\\1))*$");
+	}
+	
+	void updateGameInfo(){
+		int loc = getButtonLocation(13);
+		
+		if(addSelectedCard(null) == -1){
+			if(isSet(selectedCards)){
+				buttonData[loc][BUTTON_BGCOLOR] =  color(160, 0, 0);
+				buttonTxt[loc] = "Set! Hand in.";
+			}else{
+				buttonData[loc][BUTTON_BGCOLOR] =  color(160, 0, 0);
+				buttonTxt[loc] = "This is not set.";
+			}
+		}else{
+			buttonData[loc][BUTTON_BGCOLOR] =  color(150, 150, 150);
+			buttonTxt[loc] = "This is not set.";
+		}
+	}
+
 	/*********************
 	 * CARDS
 	 **********************/
@@ -633,40 +687,32 @@ public class SubSet extends PApplet {
 		//how far has the card beend dragged.
 		int dx = abs(but[BUTTON_X] - draggingCardOriginalPos[0]);
 		int dy = abs(but[BUTTON_Y] - draggingCardOriginalPos[1]);
-		//was a drag action, do nothing.
-		if(sqrt(dx*dx+dy*dy) > 10){
-			draggingCard = null;
-			draggingCardOriginalPos = null;
-			draggingMarge = null;
-			return;
+		//was a small drag, handle as click
+		if(sqrt(dx*dx+dy*dy) < 10){
+			//already selected?
+			if (but[BUTTON_Y] == getSelectedCardLocation(0).y) {
+				removeSelectedCard(buttonTxt[getButtonLocation(but[BUTTON_ID])]);
+				Rectangle place = getDefaultCardLocation(0, 0);
+				but[BUTTON_X] = place.x;
+				but[BUTTON_Y] = place.y;
+				but[BUTTON_WIDTH] = place.width;
+				but[BUTTON_HEIGHT] = place.height;
+				forceScreenUpdate = true;
+			}else{
+				int loc = addSelectedCard(buttonTxt[getButtonLocation(but[BUTTON_ID])]);
+				//and there is place in the selection bar?
+				if (loc != -1) {
+					//select it!
+					Rectangle place = getSelectedCardLocation(loc);
+					but[BUTTON_X] = place.x;
+					but[BUTTON_Y] = place.y;
+					but[BUTTON_WIDTH] = place.width;
+					but[BUTTON_HEIGHT] = place.height;
+					forceScreenUpdate = true;
+				}
+			}	
 		}
 		
-		//already selected?
-		if (but[BUTTON_Y] == getSelectedCardLocation(0).y) {
-			removeSelectedCard(but[BUTTON_ID]);
-			Rectangle place = getDefaultCardLocation(0, 0);
-			but[BUTTON_X] = place.x;
-			but[BUTTON_Y] = place.y;
-			but[BUTTON_WIDTH] = place.width;
-			but[BUTTON_HEIGHT] = place.height;
-			forceScreenUpdate = true;
-			
-			draggingCard = null;
-			draggingCardOriginalPos = null;
-			draggingMarge = null;
-			return;
-		}
-		int loc = addSelectedCard(but[BUTTON_ID]);
-		//and there is place in the selection bar?
-		if (loc != -1) {
-			//select it!
-			Rectangle place = getSelectedCardLocation(loc);
-			but[BUTTON_X] = place.x;
-			but[BUTTON_Y] = place.y;
-			but[BUTTON_WIDTH] = place.width;
-			but[BUTTON_HEIGHT] = place.height;
-			forceScreenUpdate = true;
-		}
 		draggingCard = null;
 		draggingCardOriginalPos = null;
 		draggingMarge = null;
@@ -675,8 +721,8 @@ public class SubSet extends PApplet {
 	void cardDragAction() {
 		if(draggingCard == null || draggingCardOriginalPos[1] == getSelectedCardLocation(0).y)
 			return;
-		draggingCard[BUTTON_X] = mouseX-draggingMarge[0];
-		draggingCard[BUTTON_Y] = mouseY-draggingMarge[1];
+		draggingCard[BUTTON_X] = constrain(mouseX-draggingMarge[0], 270, 790-draggingCard[BUTTON_WIDTH]);
+		draggingCard[BUTTON_Y] = constrain(mouseY-draggingMarge[1], 5, 595-draggingCard[BUTTON_HEIGHT]);
 		forceScreenUpdate = true;
 	}
 	
