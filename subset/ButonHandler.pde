@@ -1,10 +1,17 @@
-int buttonCounter = 0;
 void addButton(String naam, int id, int menu, int x, int y, int wid, int hei, int bgCol, int fgCol){
-  buttonData[buttonCounter] = new int[] {
+  int loc = getEmptyButtonLocation();
+  buttonData[loc] = new int[] {
     id, menu, x, y, wid, hei, bgCol, fgCol
   };
-  buttonTxt[buttonCounter] = naam;
-  buttonCounter++;
+  buttonTxt[loc] = naam;
+}
+
+int getEmptyButtonLocation(){
+  for(int i = 0; i < buttonData.length; i++)
+    if(buttonData[i] == null)
+       return i;
+  println("Not enough space in button data array!");
+  return -1;
 }
 
 void doButtonAction(int buttonID){
@@ -23,27 +30,9 @@ void doButtonAction(int buttonID){
            case 12: giveUp();break;
            case 13: validInvalidSet();break;
       }
-    if(buttonID >100 && buttonID <200)
-          cardClickedAction(buttonID);
 }
 
-void startGame(boolean original){
-  gameStatus = (original ? GAME_ORIGINAL : GAME_SIMPLE);
-  selectedScreen = SCREEN_GAME;
-  forceScreenUpdate = true;
-  
-  stack = getCardSet(!original);
-  shuffleStack(stack);
-  
-  timerStartTime = getUnixTime();
-  gameTime = 0;
-  
-  if(scoreBoard[original ? 1 : 0].length > 0){
-    highScore = scoreBoard[original ? 1 : 0][0][1];
-  }else{
-    highScore = "-";
-  }
-}
+//Button Actions \/
 void showScoreScreen(){
   selectedScreen = SCREEN_SCORES;
   forceScreenUpdate = true;
@@ -58,6 +47,7 @@ void backToMenu(){
   forceScreenUpdate = true;
 }
 void cardClickedAction(int id){
+  println(id);
 }
 void loadGame(){
 }
@@ -69,13 +59,18 @@ void saveAndQuit(){
   saveGame();
   backToMenu();
   stack = null;
-  onTable = null;
   gameTime = 0;
   highScore = null;
   foundSets = 0;
   cardsInStack = 0;
   possibleSets = 0;
   wrongSets = 0;
+  for(int i = 0; i < buttonData.length; i++)
+    if(buttonData[i] != null)
+        if(buttonData[i][BUTTON_ID] >=100 && buttonData[i][BUTTON_ID] <200){
+           buttonData[i] = null;
+           buttonTxt[i] = null;
+        }
 }
 void orderCards(){
 }

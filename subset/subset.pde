@@ -51,7 +51,7 @@ int buttonAmount = 200;
 int[][] buttonData = new int[buttonAmount][];
 String[] buttonTxt = new String[buttonAmount];
 
-StringList stack, onTable;
+StringList stack;
 float gameTime = -1;
 int timerStartTime;
 String highScore;
@@ -103,10 +103,45 @@ void mousePressed() {
     }
     if (mouseX > but[BUTTON_X] && mouseX < (but[BUTTON_X]+but[BUTTON_WIDTH])
       && mouseY > but[BUTTON_Y] && mouseY < (but[BUTTON_Y] + but[BUTTON_HEIGHT])) {
-      doButtonAction(but[BUTTON_ID]);
+      if(but[BUTTON_ID] >=100 && but[BUTTON_ID] <200)
+          cardPressAction(but[BUTTON_ID]);
+      else
+          doButtonAction(but[BUTTON_ID]);
+      break;
     }
   }
+}
 
+void mouseClicked(){
+  for (int[] but : buttonData) {  
+    if(but == null)
+      continue;
+    if (but[BUTTON_SCREEN] != selectedScreen) {
+      continue;
+    }
+    if (mouseX > but[BUTTON_X] && mouseX < (but[BUTTON_X]+but[BUTTON_WIDTH])
+      && mouseY > but[BUTTON_Y] && mouseY < (but[BUTTON_Y] + but[BUTTON_HEIGHT])) {
+      if(but[BUTTON_ID] >=100 && but[BUTTON_ID] <200)
+          cardClickedAction(but[BUTTON_ID]);
+      break;
+    }
+  }
+}
+
+void mouseDragged(){
+    for (int[] but : buttonData) {  
+    if(but == null)
+      continue;
+    if (but[BUTTON_SCREEN] != selectedScreen) {
+      continue;
+    }
+    if (mouseX > but[BUTTON_X] && mouseX < (but[BUTTON_X]+but[BUTTON_WIDTH])
+      && mouseY > but[BUTTON_Y] && mouseY < (but[BUTTON_Y] + but[BUTTON_HEIGHT])) {
+      if(but[BUTTON_ID] >=100 && but[BUTTON_ID] <200)
+          cardDraggedAction(but[BUTTON_ID]);
+      break;
+    }
+  }
 }
 
 public void exit(){

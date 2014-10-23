@@ -1,3 +1,35 @@
+void startGame(boolean original){
+  gameStatus = (original ? GAME_ORIGINAL : GAME_SIMPLE);
+  selectedScreen = SCREEN_GAME;
+  forceScreenUpdate = true;
+  
+  stack = getCardSet(!original);
+  shuffleStack(stack);
+  
+  timerStartTime = getUnixTime();
+  gameTime = 0;
+  
+  if(scoreBoard[original ? 1 : 0].length > 0){
+    highScore = scoreBoard[original ? 1 : 0][0][1];
+  }else{
+    highScore = "-";
+  }
+  
+  int idCounter = 100;
+  for(int i = 1; i <= (original ? 4 : 3); i++){
+    for(int j = 1; j <= 3; j++){
+       addCardToScreen(idCounter, (i-1)*80+370, (j-1)*170+55);
+       idCounter++;
+    }
+  }
+}
+
+void addCardToScreen(int cardID, int x, int y){
+  String card = stack.get(stack.size()-1);
+  stack.remove(stack.size()-1);
+  addButton(card, cardID, SCREEN_GAME, x, y, 70, 150, 255, 0);
+}
+
 StringList getCardSet(boolean simple) {
   StringList out = new StringList();
   for (int i = 1; i <=3; i++) {
@@ -19,20 +51,20 @@ StringList getCardSet(boolean simple) {
 String makeCard(int col, int shape, int amount, int background){
   String out = "";
   switch(col){
-    case 1: out += "R"; break;
-    case 2: out += "B"; break;
-    case 3: out += "Y"; break;
+    case 1: out += C_COL_RED; break;
+    case 2: out += C_COL_BLUE; break;
+    case 3: out += C_COL_YELLOW; break;
   }
   switch(shape){
-    case 1: out += "E"; break;
-    case 2: out += "Q"; break;
-    case 3: out += "T"; break;
+    case 1: out += C_SHAPE_ELLIPSE; break;
+    case 2: out += C_SHAPE_QUAD; break;
+    case 3: out += C_SHAPE_TRINAGLE; break;
   }
-  switch(shape){
-    case 1: out += "O"; break;
-    case 2: out += "G"; break;
-    case 3: out += "P"; break;
-    case 4: out += "N"; break;
+  switch(background){
+    case 1: out += C_BG_ORANGE; break;
+    case 2: out += C_BG_GREEN; break;
+    case 3: out += C_BG_PURPLE; break;
+    case 4: out += C_BG_NONE; break;
   }
   return out+=amount;
 }
@@ -57,6 +89,9 @@ void updateGameTimer(){
   int time = (getUnixTime() - timerStartTime);
   int minutes = (int)time/60;
   int secs = time - (minutes*60);
-  gameTime = round(minutes + (secs/100f), 2);
-  forceScreenUpdate = true;
+  float newGameTime = round(minutes + (secs/100f), 2);
+  if(newGameTime != gameTime){
+    gameTime = newGameTime;
+    forceScreenUpdate = true;
+  }
 }
