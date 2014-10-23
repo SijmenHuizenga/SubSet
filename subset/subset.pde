@@ -1,3 +1,5 @@
+import java.awt.Rectangle;
+
 final int SCREEN_MENU = 0;
 final int SCREEN_GAME = 1;
 final int SCREEN_SCORES = 2;
@@ -49,11 +51,12 @@ int buttonAmount = 200;
 int[][] buttonData = new int[buttonAmount][];
 String[] buttonTxt = new String[buttonAmount];
 
-StringList stack, onTable;
+StringList stack;
 float gameTime = -1;
 int timerStartTime;
 String highScore;
 int foundSets, cardsInStack, possibleSets, wrongSets;
+int selectedCards = 0;
 
 String[][][] scoreBoard;
 
@@ -93,7 +96,21 @@ void draw() {
 }
 
 void mousePressed() {
-  buttonPressCheck();
+  for (int[] but : buttonData) {  
+    if(but == null)
+      continue;
+    if (but[BUTTON_SCREEN] != selectedScreen) {
+      continue;
+    }
+    if (mouseX > but[BUTTON_X] && mouseX < (but[BUTTON_X]+but[BUTTON_WIDTH])
+      && mouseY > but[BUTTON_Y] && mouseY < (but[BUTTON_Y] + but[BUTTON_HEIGHT])) {
+      if(but[BUTTON_ID] >=100 && but[BUTTON_ID] <200)
+          cardPressAction(but[BUTTON_ID]);
+      else
+          doButtonAction(but[BUTTON_ID]);
+      break;
+    }
+  }
 }
 
 void exit(){
