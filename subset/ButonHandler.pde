@@ -27,6 +27,20 @@ void doButtonAction(int buttonID){
           cardClickedAction(buttonID);
 }
 
+void buttonPressCheck(){
+  for (int[] but : buttonData) {  
+    if(but == null)
+      continue;
+    if (but[BUTTON_SCREEN] != selectedScreen) {
+      continue;
+    }
+    if (mouseX > but[BUTTON_X] && mouseX < (but[BUTTON_X]+but[BUTTON_WIDTH])
+      && mouseY > but[BUTTON_Y] && mouseY < (but[BUTTON_Y] + but[BUTTON_HEIGHT])) {
+      doButtonAction(but[BUTTON_ID]);
+    }
+  }
+}
+
 void startGame(boolean original){
   gameStatus = (original ? GAME_ORIGINAL : GAME_SIMPLE);
   selectedScreen = SCREEN_GAME;
@@ -44,6 +58,7 @@ void startGame(boolean original){
     highScore = "-";
   }
 }
+
 void showScoreScreen(){
   selectedScreen = SCREEN_SCORES;
   forceScreenUpdate = true;

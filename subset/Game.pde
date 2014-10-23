@@ -51,12 +51,17 @@ void shuffleStack(StringList in){
   }
 }
 
+
+
 void updateGameTimer(){
   if(gameTime == -1)
     return;
   int time = (getUnixTime() - timerStartTime);
   int minutes = (int)time/60;
   int secs = time - (minutes*60);
-  gameTime = round(minutes + (secs/100f), 2);
-  forceScreenUpdate = true;
+  float newGameTime = round(minutes + (secs/100f), 2);
+  if(newGameTime != gameTime){
+    gameTime = newGameTime;
+    forceScreenUpdate = true;
+  }
 }

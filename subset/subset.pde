@@ -40,8 +40,6 @@ final char C_BG_PURPLE = 'P';
 final char C_BG_NONE = 'N';
 
 String scoresFile;
-
-int backgroundColor = 0;
 int selectedScreen = SCREEN_MENU;
 int gameStatus = GAME_OFF;
 boolean forceScreenUpdate = true;
@@ -95,21 +93,10 @@ void draw() {
 }
 
 void mousePressed() {
-  for (int[] but : buttonData) {  
-    if(but == null)
-      continue;
-    if (but[BUTTON_SCREEN] != selectedScreen) {
-      continue;
-    }
-    if (mouseX > but[BUTTON_X] && mouseX < (but[BUTTON_X]+but[BUTTON_WIDTH])
-      && mouseY > but[BUTTON_Y] && mouseY < (but[BUTTON_Y] + but[BUTTON_HEIGHT])) {
-      doButtonAction(but[BUTTON_ID]);
-    }
-  }
-
+  buttonPressCheck();
 }
 
-public void exit(){
+void exit(){
   saveScoreBoard(scoreBoard, scoresFile);
   super.exit();
 }
