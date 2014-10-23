@@ -1,11 +1,13 @@
 void cardPressAction(int id){
-  println(id + " pressed");
-}
-
-void cardClickedAction(int id){
-  println(id + " clicked");
-}
-
-void cardDraggedAction(int id){
-  println(id + " dragged");
+  int[] but = getButton(id);
+  
+  if(selectedCards < 3){
+    Rectangle place = getSelectedCardLocation(selectedCards);
+    but[BUTTON_X] = place.x;
+    but[BUTTON_Y] = place.y;
+    but[BUTTON_WIDTH] = place.width;
+    but[BUTTON_HEIGHT] = place.height;
+    forceScreenUpdate = true;
+  }
+  selectedCards++;
 }

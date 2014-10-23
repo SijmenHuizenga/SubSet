@@ -14,6 +14,13 @@ int getEmptyButtonLocation(){
   return -1;
 }
 
+int[] getButton(int id){
+  for(int i = 0; i < buttonData.length; i++)
+    if(buttonData[i] != null && buttonData[i][BUTTON_ID] == id)
+       return buttonData[i];
+  return null;
+}
+
 void doButtonAction(int buttonID){
       switch(buttonID){
            case 1: startGame(false); break;

@@ -108,7 +108,8 @@ void drawGame() {
   rectMode(CORNER);
   rect(270, 5, 520, 590);
   for (int i = 0; i < 3; i++) {
-    rect(10+i*89, 420, 71, 120);
+    Rectangle place = getSelectedCardLocation(i);
+    rect(place.x, place.y, place.width, place.height);
   }
   String stats = "";
   stats += "Current Time: " + timeFloatToString(gameTime) + "\n";

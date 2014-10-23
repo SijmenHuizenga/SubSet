@@ -1,3 +1,5 @@
+import java.awt.Rectangle;
+
 final int SCREEN_MENU = 0;
 final int SCREEN_GAME = 1;
 final int SCREEN_SCORES = 2;
@@ -56,6 +58,7 @@ float gameTime = -1;
 int timerStartTime;
 String highScore;
 int foundSets, cardsInStack, possibleSets, wrongSets;
+int selectedCards = 0;
 
 String[][][] scoreBoard;
 
@@ -107,38 +110,6 @@ void mousePressed() {
           cardPressAction(but[BUTTON_ID]);
       else
           doButtonAction(but[BUTTON_ID]);
-      break;
-    }
-  }
-}
-
-void mouseClicked(){
-  for (int[] but : buttonData) {  
-    if(but == null)
-      continue;
-    if (but[BUTTON_SCREEN] != selectedScreen) {
-      continue;
-    }
-    if (mouseX > but[BUTTON_X] && mouseX < (but[BUTTON_X]+but[BUTTON_WIDTH])
-      && mouseY > but[BUTTON_Y] && mouseY < (but[BUTTON_Y] + but[BUTTON_HEIGHT])) {
-      if(but[BUTTON_ID] >=100 && but[BUTTON_ID] <200)
-          cardClickedAction(but[BUTTON_ID]);
-      break;
-    }
-  }
-}
-
-void mouseDragged(){
-    for (int[] but : buttonData) {  
-    if(but == null)
-      continue;
-    if (but[BUTTON_SCREEN] != selectedScreen) {
-      continue;
-    }
-    if (mouseX > but[BUTTON_X] && mouseX < (but[BUTTON_X]+but[BUTTON_WIDTH])
-      && mouseY > but[BUTTON_Y] && mouseY < (but[BUTTON_Y] + but[BUTTON_HEIGHT])) {
-      if(but[BUTTON_ID] >=100 && but[BUTTON_ID] <200)
-          cardDraggedAction(but[BUTTON_ID]);
       break;
     }
   }

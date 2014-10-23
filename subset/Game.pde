@@ -14,20 +14,34 @@ void startGame(boolean original){
   }else{
     highScore = "-";
   }
-  
   int idCounter = 100;
   for(int i = 1; i <= (original ? 4 : 3); i++){
     for(int j = 1; j <= 3; j++){
-       addCardToScreen(idCounter, (i-1)*80+370, (j-1)*170+55);
+       addCardToScreen(idCounter, i-1, j-1);
        idCounter++;
     }
   }
 }
 
+/**
+ * de x en y zijn 0 based.
+ */
+Rectangle getDefaultCardLocation(int x, int y){
+  return new Rectangle(x*80+370, y*170+55, 77, 150);
+}
+
+/**
+ * het nr is tussen 1 tm 3
+ */
+Rectangle getSelectedCardLocation(int nr){
+  return new Rectangle(10+nr*89, 420, 71, 120);
+}
+
 void addCardToScreen(int cardID, int x, int y){
   String card = stack.get(stack.size()-1);
   stack.remove(stack.size()-1);
-  addButton(card, cardID, SCREEN_GAME, x, y, 70, 150, 255, 0);
+  Rectangle rect = getDefaultCardLocation(x, y);
+  addButton(card, cardID, SCREEN_GAME, rect.x, rect.y, rect.width, rect.height, 255, 0);
 }
 
 StringList getCardSet(boolean simple) {
