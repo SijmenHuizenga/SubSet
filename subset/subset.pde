@@ -42,8 +42,6 @@ final char C_BG_PURPLE = 'P';
 final char C_BG_NONE = 'N';
 
 String scoresFile;
-
-int backgroundColor = 0;
 int selectedScreen = SCREEN_MENU;
 int gameStatus = GAME_OFF;
 boolean forceScreenUpdate = true;
@@ -115,7 +113,7 @@ void mousePressed() {
   }
 }
 
-public void exit(){
+void exit(){
   saveScoreBoard(scoreBoard, scoresFile);
   super.exit();
 }

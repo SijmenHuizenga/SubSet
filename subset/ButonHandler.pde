@@ -39,7 +39,24 @@ void doButtonAction(int buttonID){
       }
 }
 
-//Button Actions \/
+void startGame(boolean original){
+  gameStatus = (original ? GAME_ORIGINAL : GAME_SIMPLE);
+  selectedScreen = SCREEN_GAME;
+  forceScreenUpdate = true;
+  
+  stack = getCardSet(!original);
+  shuffleStack(stack);
+  
+  timerStartTime = getUnixTime();
+  gameTime = 0;
+  
+  if(scoreBoard[original ? 1 : 0].length > 0){
+    highScore = scoreBoard[original ? 1 : 0][0][1];
+  }else{
+    highScore = "-";
+  }
+}
+
 void showScoreScreen(){
   selectedScreen = SCREEN_SCORES;
   forceScreenUpdate = true;
