@@ -65,8 +65,8 @@ public class subset extends PApplet {
 	float gameTime = -1;
 	int timerStartTime;
 	String highScore;
-	int foundSets, cardsInStack, possibleSets, wrongSets;
-	String[] selectedCards = new String[3];
+	int foundSets, possibleSets, wrongSets;
+	int[] selectedCards = new int[3];
 	
 	int[] draggingCard = null;
 	int[] draggingCardOriginalPos = null;
@@ -131,9 +131,6 @@ public class subset extends PApplet {
 	}
 	
 	public void mouseReleased() {
-		int[] but = getButtonAtLocation(mouseX, mouseY, selectedScreen);
-		if(but == null)
-			return;
 		if(selectedScreen == SCREEN_GAME)
 			cardReleaseAction();
 	}
@@ -207,7 +204,7 @@ public class subset extends PApplet {
 				giveUp();
 				break;
 			case 13:
-				validInvalidSet();
+				handInSet();
 				break;
 			case 14:
 				doSuperSecretStuff();
@@ -264,7 +261,6 @@ public class subset extends PApplet {
 		gameTime = 0;
 		highScore = null;
 		foundSets = 0;
-		cardsInStack = 0;
 		possibleSets = 0;
 		wrongSets = 0;
 		for (int i = 0; i < buttonData.length; i++)
@@ -273,38 +269,80 @@ public class subset extends PApplet {
 					buttonData[i] = null;
 					buttonTxt[i] = null;
 				}
-		selectedCards = new String[3];
+		selectedCards = new int[3];
 	}
 	
 	void orderCards() {
-		selectedCards = new String[3];
+		selectedCards = new int[3];
 		int idCounter = 100;
-		int x = 0, y = 0;
 		int butLoc;
 		while((butLoc = getButtonLocation(idCounter)) != -1){
-			Rectangle rect = getDefaultCardLocation(x, y);
 			
 			int[] button = buttonData[butLoc];
+			
+			Rectangle rect = getDefaultCardLocation(idCounter/3, idCounter%3);
+			
 			button[BUTTON_X] = rect.x;
 			button[BUTTON_Y] = rect.y;
 			button[BUTTON_WIDTH] = rect.width;
 			button[BUTTON_HEIGHT] = rect.height;
-			println(x+"+"+y);
 			idCounter++;
-			y++;
-			if(y == 3){
-				y = 0;
-				x++;
+		}
+		forceScreenUpdate = true;
+	}
+	
+	void removeAllSelectedCards(){
+		
+		for(int buttonID : selectedCards){
+			
+			int[] button = buttonData[getButtonLocation(buttonID+100)];
+			
+			Rectangle rect = getDefaultCardLocation((buttonID+100)/3, (buttonID+100)%3);
+			
+			button[BUTTON_X] = rect.x;
+			button[BUTTON_Y] = rect.y;
+			button[BUTTON_WIDTH] = rect.width;
+			button[BUTTON_HEIGHT] = rect.height;
+		}
+		selectedCards = new int[3];
+		forceScreenUpdate = true;
+	}
+	
+	void giveHint() {
+		removeAllSelectedCards();
+		for(int a = 0; a < 9; a++){
+			for(int b = 0; b < 9; b++){
+				for(int c = 0; c < 9; c++){
+					if(a==b || a == c || b == c)
+						continue;
+					if(isSet(new String[]{buttonTxt[getButtonLocation(a+100)], buttonTxt[getButtonLocation(b+100)], buttonTxt[getButtonLocation(c+100)]})){
+						int loc = addSelectedCard(a+100);
+						//TODO: kaarten toevoegen. Misschien de addSelectedCard ook echt de kaart op de goede plek neer laten leggen?
+						addSelectedCard(b+100);
+						return;
+					}
+				}
 			}
 		}
 		forceScreenUpdate = true;
 	}
 	
-	void giveHint() {}
-	
 	void giveUp() {}
 	
-	void validInvalidSet() {}
+	void handInSet() {
+		if(isSelectedSpotFree())
+			return; //still a spot left in the selected cards space.
+		if(!isSetSelected())
+			return; //it is not a set.
+		for(int id : selectedCards){
+			int loc = getButtonLocation(id);
+			buttonData[loc] = null;
+			buttonTxt[loc] = null;
+			addCardToScreen(id);
+		}
+		selectedCards = new int[3];
+		forceScreenUpdate = true;
+	}
 	
 	/*********************
 	 * DRAWING
@@ -355,6 +393,7 @@ public class subset extends PApplet {
 		else
 			fill(BG_NONE);
 		rectMode(CORNER);
+		stroke(0);
 		rect(but[BUTTON_X], but[BUTTON_Y], but[BUTTON_WIDTH], but[BUTTON_HEIGHT]);
 		
 		if (card.indexOf(C_COL_RED) != -1)
@@ -430,7 +469,7 @@ public class subset extends PApplet {
 		String stats = "";
 		stats += "Current Time: " + timeFloatToString(gameTime) + "\n";
 		stats += "Found Sets: " + foundSets + "\n";
-		stats += "Cards in Stacdk: " + cardsInStack + "\n";
+		stats += "Cards in Stacdk: " + stack.size() + "\n";
 		stats += "High Score: " + highScore + "\n";
 		stats += "Possible Sets: " + possibleSets + "\n";
 		stats += "Wrong Sets: " + wrongSets + "\n";
@@ -518,7 +557,7 @@ public class subset extends PApplet {
 		int idCounter = 100;
 		for (int i = 0; i < (original ? 4 : 3); i++) {
 			for (int j = 0; j < 3; j++) {
-				addCardToScreen(idCounter, i, j);
+				addCardToScreen(idCounter);
 				idCounter++;
 			}
 		}
@@ -532,20 +571,20 @@ public class subset extends PApplet {
 		return new Rectangle(10 + nr * 89, 420, 71, 120);
 	}
 	
-	int addSelectedCard(String card) {
+	int addSelectedCard(int cardID) {
 		for (int i = 0; i < selectedCards.length; i++) {
-			if (selectedCards[i] == null) {
-				selectedCards[i] = card;
+			if (selectedCards[i] == 0) {
+				selectedCards[i] = cardID;
 				return i;
 			}
 		}
 		return -1;
 	}
 	
-	void removeSelectedCard(String card) {
+	void removeSelectedCard(int cardID) {
 		for (int i = 0; i < selectedCards.length; i++) {
-			if (selectedCards[i] != null && selectedCards[i].equals(card)) {
-				selectedCards[i] = null;
+			if (selectedCards[i] == cardID) {
+				selectedCards[i] = 0;
 			}
 		}
 	}
@@ -571,8 +610,8 @@ public class subset extends PApplet {
 	void updateGameInfo(){
 		int loc = getButtonLocation(13);
 		
-		if(addSelectedCard(null) == -1){
-			if(isSet(selectedCards)){
+		if(!isSelectedSpotFree()){
+			if(isSetSelected()){
 				buttonData[loc][BUTTON_BGCOLOR] =  color(0, 255, 0);
 				buttonTxt[loc] = "Set! Hand in.";
 			}else{
@@ -583,16 +622,19 @@ public class subset extends PApplet {
 			buttonData[loc][BUTTON_BGCOLOR] =  color(150, 150, 150);
 			buttonTxt[loc] = "";
 		}
+		possibleSets = getPossibleSets();
 	}
 
 	/*********************
 	 * CARDS
 	 **********************/
 	
-	void addCardToScreen(int cardID, int x, int y) {
+	void addCardToScreen(int cardID) {
+		if(stack.size() == 0)
+			return;
 		String card = stack.get(stack.size() - 1);
 		stack.remove(stack.size() - 1);
-		Rectangle rect = getDefaultCardLocation(x, y);
+		Rectangle rect = getDefaultCardLocation((cardID-100)/3, (cardID-100)%3);
 		addButton(card, cardID, SCREEN_GAME, rect.x, rect.y, rect.width, rect.height, 255, 0);
 	}
 	
@@ -691,15 +733,15 @@ public class subset extends PApplet {
 		if(sqrt(dx*dx+dy*dy) < 10){
 			//already selected?
 			if (but[BUTTON_Y] == getSelectedCardLocation(0).y) {
-				removeSelectedCard(buttonTxt[getButtonLocation(but[BUTTON_ID])]);
-				Rectangle place = getDefaultCardLocation(0, 0);
+				removeSelectedCard(but[BUTTON_ID]);
+				Rectangle place = getDefaultCardLocation((but[BUTTON_ID]-100)/3, (but[BUTTON_ID]-100)%3);
 				but[BUTTON_X] = place.x;
 				but[BUTTON_Y] = place.y;
 				but[BUTTON_WIDTH] = place.width;
 				but[BUTTON_HEIGHT] = place.height;
 				forceScreenUpdate = true;
 			}else{
-				int loc = addSelectedCard(buttonTxt[getButtonLocation(but[BUTTON_ID])]);
+				int loc = addSelectedCard(but[BUTTON_ID]);
 				//and there is place in the selection bar?
 				if (loc != -1) {
 					//select it!
@@ -724,6 +766,34 @@ public class subset extends PApplet {
 		draggingCard[BUTTON_X] = constrain(mouseX-draggingMarge[0], 270, 790-draggingCard[BUTTON_WIDTH]);
 		draggingCard[BUTTON_Y] = constrain(mouseY-draggingMarge[1], 5, 595-draggingCard[BUTTON_HEIGHT]);
 		forceScreenUpdate = true;
+	}
+	
+	boolean isSetSelected(){
+		if(isSelectedSpotFree())
+			return false;
+		String[] cards = new String[selectedCards.length];
+		for(int i = 0; i < cards.length; i++){
+			cards[i] = buttonTxt[getButtonLocation(selectedCards[i])];
+		}
+		return isSet(cards);
+	}
+	boolean isSelectedSpotFree(){
+		return addSelectedCard(0) != -1;
+	}
+	
+	int getPossibleSets(){
+		int out = 0;
+		for(int a = 0; a < 9; a++){
+			for(int b = 0; b < 9; b++){
+				for(int c = 0; c < 9; c++){
+					if(a==b || a == c || b == c)
+						continue;
+					if(isSet(new String[]{buttonTxt[getButtonLocation(a+100)], buttonTxt[getButtonLocation(b+100)], buttonTxt[getButtonLocation(c+100)]}))
+						out++;
+				}
+			}
+		}
+		return out/3;
 	}
 	
 	/*********************
