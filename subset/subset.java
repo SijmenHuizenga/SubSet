@@ -7,7 +7,7 @@ import processing.core.*;
 import processing.data.*;
 
 @SuppressWarnings("serial")
-public class SubSet extends PApplet {
+public class subset extends PApplet {
 	
 	final int SCREEN_MENU = 0;
 	final int SCREEN_GAME = 1;
