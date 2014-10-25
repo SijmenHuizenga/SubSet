@@ -67,6 +67,7 @@ public class subset extends PApplet {
 	String highScore;
 	int foundSets, possibleSets, wrongSets;
 	int[] selectedCards = new int[3];
+	int[] hintSet = null;
 	
 	int[] draggingCard = null;
 	int[] draggingCardOriginalPos = null;
@@ -292,28 +293,12 @@ public class subset extends PApplet {
 	}
 	
 	void giveHint() {
+		timerStartTime -= 40;
 		removeAllSelectedCards();
-		for(int a = 0; a < 9; a++){
-			int locA = getButtonLocation(a+100);
-			if(locA == -1)
-				continue;
-			for(int b = 0; b < 9; b++){
-				int locB = getButtonLocation(b+100);
-				if(locB == -1 || locA == locB)
-					continue;
-				for(int c = 0; c < 9; c++){
-					int locC = getButtonLocation(c+100);
-					if(locC == -1 || locC == locB || locC == locA)
-						continue;
-					if(isSet(new String[]{buttonTxt[locA], buttonTxt[locB], buttonTxt[locC]})){
-						addSelectedCard(buttonData[locA]);
-						addSelectedCard(buttonData[locB]);
-						timerStartTime -= 30;
-						forceScreenUpdate = true;
-						return;
-					}
-				}
-			}
+		if(hintSet == null)
+			return;
+		for(int buttonLoc : hintSet){
+			addSelectedCard(buttonData[buttonLoc]);
 		}
 	}
 	
@@ -553,6 +538,24 @@ public class subset extends PApplet {
 		}
 	}
 	
+	void updateGameInfo(){
+		int loc = getButtonLocation(13);
+		
+		if(!isSelectedSpotFree()){
+			if(isSetSelected()){
+				buttonData[loc][BUTTON_BGCOLOR] =  color(0, 255, 0);
+				buttonTxt[loc] = "Set! Hand in.";
+			}else{
+				buttonData[loc][BUTTON_BGCOLOR] =  color(160, 0, 0);
+				buttonTxt[loc] = "No set.";
+			}
+		}else{
+			buttonData[loc][BUTTON_BGCOLOR] =  color(150, 150, 150);
+			buttonTxt[loc] = "";
+		}
+		possibleSets = getPossibleSets();
+	}
+	
 	Rectangle getDefaultCardLocation(int x, int y) {
 		return new Rectangle(x * 80 + 370, y * 170 + 55, 77, 150);
 	}
@@ -560,6 +563,10 @@ public class subset extends PApplet {
 	Rectangle getSelectedCardLocation(int nr) {
 		return new Rectangle(10 + nr * 89, 420, 71, 120);
 	}
+	
+	/*********************
+	 * SELECTION
+	 **********************/
 	
 	void addSelectedCard(int[] button) {
 		for (int i = 0; i < selectedCards.length; i++) {
@@ -635,24 +642,6 @@ public class subset extends PApplet {
 	//wtf is this? look at this: http://rick.measham.id.au/paste/explain.pl?regex=%5E%28%3F%3A%28.%29%28%3F%21.*%3F%5C1%29%29*%24
 	boolean isSameOrDiff(String toCheck) {
 		return toCheck.matches(toCheck.charAt(0)+"+") || toCheck.matches("^(?:(.)(?!.*?\\1))*$");
-	}
-	
-	void updateGameInfo(){
-		int loc = getButtonLocation(13);
-		
-		if(!isSelectedSpotFree()){
-			if(isSetSelected()){
-				buttonData[loc][BUTTON_BGCOLOR] =  color(0, 255, 0);
-				buttonTxt[loc] = "Set! Hand in.";
-			}else{
-				buttonData[loc][BUTTON_BGCOLOR] =  color(160, 0, 0);
-				buttonTxt[loc] = "No set.";
-			}
-		}else{
-			buttonData[loc][BUTTON_BGCOLOR] =  color(150, 150, 150);
-			buttonTxt[loc] = "";
-		}
-		possibleSets = getPossibleSets();
 	}
 
 	/*********************
@@ -795,15 +784,27 @@ public class subset extends PApplet {
 	}
 	
 	int getPossibleSets(){
+		hintSet = null;
 		int out = 0;
-		for(int a = 0; a < 9; a++){
-			for(int b = 0; b < 9; b++){
-				for(int c = 0; c < 9; c++){
-					if(a==b || a == c || b == c)
+		int max = gameStatus == GAME_SIMPLE ? 9 : 12;
+		for(int a = 0; a < max; a++){
+			int locA = getButtonLocation(a+100);
+			if(locA == -1)
+				continue;
+			for(int b = 0; b < max; b++){
+				int locB = getButtonLocation(b+100);
+				if(locB == -1 || locA == locB)
+					continue;
+				for(int c = 0; c < max; c++){
+					int locC = getButtonLocation(c+100);
+					if(locC == -1 || locC == locB || locC == locA)
 						continue;
-					String[] cards = new String[3];
-					if(isSet(new String[]{buttonTxt[getButtonLocation(a+100)], buttonTxt[getButtonLocation(b+100)], buttonTxt[getButtonLocation(c+100)]}))
+					if(isSet(new String[]{buttonTxt[locA], buttonTxt[locB], buttonTxt[locC]})){
 						out++;
+						if(out == 1){
+							hintSet = new int[]{locA, locB, locC};
+						}
+					}
 				}
 			}
 		}
