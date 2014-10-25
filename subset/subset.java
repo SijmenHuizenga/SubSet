@@ -273,14 +273,14 @@ public class subset extends PApplet {
 	}
 	
 	void orderCards() {
-		selectedCards = new int[3];
+		removeAllSelectedCards();
 		int idCounter = 100;
 		int butLoc;
 		while((butLoc = getButtonLocation(idCounter)) != -1){
 			
 			int[] button = buttonData[butLoc];
 			
-			Rectangle rect = getDefaultCardLocation(idCounter/3, idCounter%3);
+			Rectangle rect = getDefaultCardLocation((idCounter-100)/3, (idCounter-100)%3);
 			
 			button[BUTTON_X] = rect.x;
 			button[BUTTON_Y] = rect.y;
@@ -291,40 +291,30 @@ public class subset extends PApplet {
 		forceScreenUpdate = true;
 	}
 	
-	void removeAllSelectedCards(){
-		
-		for(int buttonID : selectedCards){
-			
-			int[] button = buttonData[getButtonLocation(buttonID+100)];
-			
-			Rectangle rect = getDefaultCardLocation((buttonID+100)/3, (buttonID+100)%3);
-			
-			button[BUTTON_X] = rect.x;
-			button[BUTTON_Y] = rect.y;
-			button[BUTTON_WIDTH] = rect.width;
-			button[BUTTON_HEIGHT] = rect.height;
-		}
-		selectedCards = new int[3];
-		forceScreenUpdate = true;
-	}
-	
 	void giveHint() {
 		removeAllSelectedCards();
 		for(int a = 0; a < 9; a++){
+			int locA = getButtonLocation(a+100);
+			if(locA == -1)
+				continue;
 			for(int b = 0; b < 9; b++){
+				int locB = getButtonLocation(b+100);
+				if(locB == -1 || locA == locB)
+					continue;
 				for(int c = 0; c < 9; c++){
-					if(a==b || a == c || b == c)
+					int locC = getButtonLocation(c+100);
+					if(locC == -1 || locC == locB || locC == locA)
 						continue;
-					if(isSet(new String[]{buttonTxt[getButtonLocation(a+100)], buttonTxt[getButtonLocation(b+100)], buttonTxt[getButtonLocation(c+100)]})){
-						int loc = addSelectedCard(a+100);
-						//TODO: kaarten toevoegen. Misschien de addSelectedCard ook echt de kaart op de goede plek neer laten leggen?
-						addSelectedCard(b+100);
+					if(isSet(new String[]{buttonTxt[locA], buttonTxt[locB], buttonTxt[locC]})){
+						addSelectedCard(buttonData[locA]);
+						addSelectedCard(buttonData[locB]);
+						timerStartTime -= 30;
+						forceScreenUpdate = true;
 						return;
 					}
 				}
 			}
 		}
-		forceScreenUpdate = true;
 	}
 	
 	void giveUp() {}
@@ -571,22 +561,62 @@ public class subset extends PApplet {
 		return new Rectangle(10 + nr * 89, 420, 71, 120);
 	}
 	
-	int addSelectedCard(int cardID) {
+	void addSelectedCard(int[] button) {
 		for (int i = 0; i < selectedCards.length; i++) {
 			if (selectedCards[i] == 0) {
-				selectedCards[i] = cardID;
-				return i;
+				selectedCards[i] = button[BUTTON_ID];
+				
+				Rectangle place = getSelectedCardLocation(i);
+				button[BUTTON_X] = place.x;
+				button[BUTTON_Y] = place.y;
+				button[BUTTON_WIDTH] = place.width;
+				button[BUTTON_HEIGHT] = place.height;
+
+				return;
 			}
 		}
-		return -1;
+		throw new IllegalArgumentException("Could not do stuff");
 	}
 	
-	void removeSelectedCard(int cardID) {
+	void removeSelectedCard(int[] button) {
 		for (int i = 0; i < selectedCards.length; i++) {
-			if (selectedCards[i] == cardID) {
+			if (selectedCards[i] == button[BUTTON_ID]) {
 				selectedCards[i] = 0;
+				
+				Rectangle place = getDefaultCardLocation((button[BUTTON_ID]-100)/3, (button[BUTTON_ID]-100)%3);
+				button[BUTTON_X] = place.x;
+				button[BUTTON_Y] = place.y;
+				button[BUTTON_WIDTH] = place.width;
+				button[BUTTON_HEIGHT] = place.height;
 			}
 		}
+	}
+	
+	void removeAllSelectedCards(){
+		
+		for(int buttonID : selectedCards){
+			if(buttonID == 0)
+				continue;
+			int[] button = buttonData[getButtonLocation(buttonID)];
+			
+			Rectangle rect = getDefaultCardLocation((buttonID)/3, (buttonID)%3);
+			
+			button[BUTTON_X] = rect.x;
+			button[BUTTON_Y] = rect.y;
+			button[BUTTON_WIDTH] = rect.width;
+			button[BUTTON_HEIGHT] = rect.height;
+		}
+		selectedCards = new int[3];
+		forceScreenUpdate = true;
+	}
+	
+	boolean isSelectedSpotFree(){
+		for (int i = 0; i < selectedCards.length; i++) {
+			if (selectedCards[i] == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	boolean isSet(String[] cards){
@@ -733,26 +763,12 @@ public class subset extends PApplet {
 		if(sqrt(dx*dx+dy*dy) < 10){
 			//already selected?
 			if (but[BUTTON_Y] == getSelectedCardLocation(0).y) {
-				removeSelectedCard(but[BUTTON_ID]);
-				Rectangle place = getDefaultCardLocation((but[BUTTON_ID]-100)/3, (but[BUTTON_ID]-100)%3);
-				but[BUTTON_X] = place.x;
-				but[BUTTON_Y] = place.y;
-				but[BUTTON_WIDTH] = place.width;
-				but[BUTTON_HEIGHT] = place.height;
-				forceScreenUpdate = true;
-			}else{
-				int loc = addSelectedCard(but[BUTTON_ID]);
-				//and there is place in the selection bar?
-				if (loc != -1) {
-					//select it!
-					Rectangle place = getSelectedCardLocation(loc);
-					but[BUTTON_X] = place.x;
-					but[BUTTON_Y] = place.y;
-					but[BUTTON_WIDTH] = place.width;
-					but[BUTTON_HEIGHT] = place.height;
-					forceScreenUpdate = true;
-				}
+				removeSelectedCard(but);
+			}else{//not selected
+				if(isSelectedSpotFree())//but still a spot free?
+					addSelectedCard(but);  //lets add that bich.
 			}	
+			forceScreenUpdate = true;
 		}
 		
 		draggingCard = null;
@@ -777,9 +793,6 @@ public class subset extends PApplet {
 		}
 		return isSet(cards);
 	}
-	boolean isSelectedSpotFree(){
-		return addSelectedCard(0) != -1;
-	}
 	
 	int getPossibleSets(){
 		int out = 0;
@@ -788,6 +801,7 @@ public class subset extends PApplet {
 				for(int c = 0; c < 9; c++){
 					if(a==b || a == c || b == c)
 						continue;
+					String[] cards = new String[3];
 					if(isSet(new String[]{buttonTxt[getButtonLocation(a+100)], buttonTxt[getButtonLocation(b+100)], buttonTxt[getButtonLocation(c+100)]}))
 						out++;
 				}
