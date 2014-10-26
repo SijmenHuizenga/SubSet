@@ -2,6 +2,8 @@
 import java.awt.Rectangle;
 import java.io.File;
 
+import javax.swing.JOptionPane;
+
 import processing.core.*;
 import processing.data.*;
 
@@ -34,6 +36,7 @@ public class subset extends PApplet {
 	final int GAME_OFF = 0;
 	final int GAME_SIMPLE = 1;
 	final int GAME_ORIGINAL = 2;
+	final int GAME_OVER = 3;
 	
 	final char C_COL_RED = 'R';
 	final char C_COL_BLUE = 'B';
@@ -55,12 +58,12 @@ public class subset extends PApplet {
 	int selectedScreen = SCREEN_MENU;
 	int gameStatus = GAME_OFF;
 	boolean forceScreenUpdate = true;
-	String[] cardStack = null;
 	
 	int buttonAmount = 200;
 	int[][] buttonData = new int[buttonAmount][];
 	String[] buttonTxt = new String[buttonAmount];
-	
+	String popupTxt = null;
+
 	StringList stack;
 	float gameTime = -1;
 	int timerStartTime;
@@ -76,6 +79,14 @@ public class subset extends PApplet {
 	String[][][] scoreBoard;
 	
 	PImage star;
+	
+	@Override
+	public void keyPressed() {
+		if(key == 'h')
+			giveHint();
+		if(key == 'g')
+			handInSet();
+	}
 	
 	/*********************
 	 * MAIN
@@ -110,13 +121,22 @@ public class subset extends PApplet {
 		if(selectedScreen==SCREEN_GAME)
 			updateGameTimer();
 		if (forceScreenUpdate) {
+			
 			drawScreen();
 			drawButtons();
+			
+			if(popupTxt != null){
+				drawPopupScreen();
+			}
 			forceScreenUpdate = false;
 		}
 	}
 	
 	public void mousePressed() {
+		if(popupTxt != null){
+			popupTxt = null;
+			forceScreenUpdate = true;
+		}
 		int[] but = getButtonAtLocation(mouseX, mouseY, selectedScreen);
 		if(but == null)
 			return;
@@ -313,8 +333,9 @@ public class subset extends PApplet {
 			int loc = getButtonLocation(id);
 			buttonData[loc] = null;
 			buttonTxt[loc] = null;
-			addCardToScreen(id);
+			addCardToScreen();
 		}
+		foundSets++;
 		selectedCards = new int[3];
 		forceScreenUpdate = true;
 	}
@@ -400,6 +421,17 @@ public class subset extends PApplet {
 			} else
 				println("ERROR: IMPPSSOBLE!");
 		}
+	}
+	
+	void drawPopupScreen(){
+		fill(color(43, 53, 255, 160));
+		rectMode(CORNER);
+		rect(0, 0, width-1, height-1);
+		
+		textAlign(CENTER, CENTER);
+		textSize(50);
+		fill(255);
+		text(popupTxt, width/2, height/2);
 	}
 	
 	void drawScreen() {
@@ -529,11 +561,9 @@ public class subset extends PApplet {
 		} else {
 			highScore = "-";
 		}
-		int idCounter = 100;
 		for (int i = 0; i < (original ? 4 : 3); i++) {
 			for (int j = 0; j < 3; j++) {
-				addCardToScreen(idCounter);
-				idCounter++;
+				addCardToScreen();
 			}
 		}
 	}
@@ -554,10 +584,30 @@ public class subset extends PApplet {
 			buttonTxt[loc] = "";
 		}
 		possibleSets = getPossibleSets();
+		
+		//no set possible: GAME OVER!
+		if(possibleSets == 0 && gameStatus != GAME_OVER){
+			
+			
+			int notFoundSets = (getCardsOnField()+stack.size())/3;
+			float score = gameTime + (gameTime/foundSets)*notFoundSets;
+			score = round(score, 2);
+			
+			addScoreEntry(gameStatus == GAME_ORIGINAL ? 1 : 0, "Name", timeFloatToString(score));
+			orderScoreBoard(scoreBoard);
+			saveScoreBoard(scoreBoard, scoresFile);
+			
+			popupTxt = "Game Over! \nScore: " + timeFloatToString(score);
+			
+			forceScreenUpdate = true;
+			gameStatus = GAME_OVER;
+			
+			JOptionPane.showInputDialog(this, "What  is your name?", "Name", JOptionPane.QUESTION_MESSAGE);
+		}
 	}
 	
 	Rectangle getDefaultCardLocation(int x, int y) {
-		return new Rectangle(x * 80 + 370, y * 170 + 55, 77, 150);
+		return new Rectangle(x * 80 + 290, y * 170 + 55, 77, 150);
 	}
 	
 	Rectangle getSelectedCardLocation(int nr) {
@@ -648,13 +698,22 @@ public class subset extends PApplet {
 	 * CARDS
 	 **********************/
 	
-	void addCardToScreen(int cardID) {
+	void addCardToScreen() {
 		if(stack.size() == 0)
 			return;
 		String card = stack.get(stack.size() - 1);
 		stack.remove(stack.size() - 1);
+		int cardID = getEmptyCardID();
 		Rectangle rect = getDefaultCardLocation((cardID-100)/3, (cardID-100)%3);
 		addButton(card, cardID, SCREEN_GAME, rect.x, rect.y, rect.width, rect.height, 255, 0);
+	}
+	
+	int getEmptyCardID(){
+		for(int i = 0; i <= 20; i++){   //Can never be more cards than 21. MATH!
+			if(getButtonLocation(i+100) == -1)
+				return i+100;
+		}
+		return -1;
 	}
 	
 	StringList getCardSet(boolean simple) {
@@ -732,6 +791,8 @@ public class subset extends PApplet {
 	}
 	
 	void cardPressAction(int[] but) {
+		if(gameStatus == GAME_OVER)
+			return;
 		if(draggingCard == null){
 			draggingCard = but;
 			draggingCardOriginalPos = new int[]{but[BUTTON_X], but[BUTTON_Y]};
@@ -740,7 +801,8 @@ public class subset extends PApplet {
 	}
 	
 	void cardReleaseAction(){
-		
+		if(gameStatus == GAME_OVER)
+			return;
 		int[] but = draggingCard;
 		if(but == null)
 			return;
@@ -766,6 +828,8 @@ public class subset extends PApplet {
 	}
 	
 	void cardDragAction() {
+		if(gameStatus == GAME_OVER)
+			return;
 		if(draggingCard == null || draggingCardOriginalPos[1] == getSelectedCardLocation(0).y)
 			return;
 		draggingCard[BUTTON_X] = constrain(mouseX-draggingMarge[0], 270, 790-draggingCard[BUTTON_WIDTH]);
@@ -786,7 +850,7 @@ public class subset extends PApplet {
 	int getPossibleSets(){
 		hintSet = null;
 		int out = 0;
-		int max = gameStatus == GAME_SIMPLE ? 9 : 12;
+		int max = 21; //TODO: make this number dynamic
 		for(int a = 0; a < max; a++){
 			int locA = getButtonLocation(a+100);
 			if(locA == -1)
@@ -811,12 +875,16 @@ public class subset extends PApplet {
 		return out/3;
 	}
 	
+	int getCardsOnField(){
+		return (gameStatus==GAME_SIMPLE ? 27 : 81 )-(stack.size() + (3*foundSets));
+	}
+	
 	/*********************
 	 * TIMER
 	 **********************/
 	
 	void updateGameTimer() {
-		if (gameTime == -1)
+		if (gameTime == -1 || gameStatus == GAME_OVER)
 			return;
 		int time = (getUnixTime() - timerStartTime);
 		int minutes = (int) time / 60;
@@ -907,12 +975,24 @@ public class subset extends PApplet {
 		}
 	}
 	
+	void addScoreEntry(int board, String name, String score) {
+		String[][] newList = new String[scoreBoard[board].length+1][];
+		int i;
+		for(i = 0; i < scoreBoard[board].length; i++){
+			newList[i] = scoreBoard[board][i];
+		}
+		newList[i] = new String[]{name, score};
+		scoreBoard[board] = newList;
+	}
+	
+	//util!
+	
 	int getUnixTime() {
 		return (int) (System.currentTimeMillis() / 1000);
 	}
 	
 	float round(float nr, int decimals) {
-		return floor(nr * (pow(10, decimals + 1))) / ((float) (pow(10, decimals + 1)));
+		return floor(nr * (pow(10, decimals))) / ((float) (pow(10, decimals)));
 	}
 	
 	String timeFloatToString(float nr) {
