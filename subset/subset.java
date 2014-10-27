@@ -64,9 +64,10 @@ public class subset extends PApplet {
 	String[] buttonTxt = new String[buttonAmount];
 	String popupTxt = null;
 
+	int timerStartTime = 0;
+	int lastTime = 0;
+	
 	StringList stack;
-	float gameTime = -1;
-	int timerStartTime;
 	String highScore;
 	int foundSets, possibleSets, wrongSets;
 	int[] selectedCards = new int[3];
@@ -120,13 +121,10 @@ public class subset extends PApplet {
 	}
 	
 	public void draw() {
-		if(selectedScreen==SCREEN_GAME)
-			updateGameTimer();
-		if (forceScreenUpdate) {
-			
+		if (forceScreenUpdate || lastTime != getTimeSeconds()) {
 			drawScreen();
 			drawButtons();
-			
+			lastTime = getTimeSeconds();
 			if(popupTxt != null){
 				drawPopupScreen();
 			}
@@ -274,31 +272,68 @@ public class subset extends PApplet {
 	}
 	
 	void loadGame(String fileName) {
+		selectedScreen = SCREEN_GAME;
+		stack = new StringList();
+		
 		String[] in = loadStrings(fileName);
 		for(String line : in){
-			if(line.startsWith("time:")){
+			if(line.startsWith("gameType:")){
+				line = line.substring(9);
+				gameStatus = (line.equals("0") ? GAME_SIMPLE : GAME_ORIGINAL);
+			}else if(line.startsWith("time:")){
 				line = line.substring(5);
-				gameTime = Integer.parseInt(line);
-				timerStartTime = getUnixTime()-gameTime;
+				timerStartTime = getUnixTime()-Integer.parseInt(line);
+			}else if(line.startsWith("wrongSets:")){
+				line = line.substring(10);
+				wrongSets = Integer.parseInt(line);
+			}else if(line.startsWith("name:")){
+				line = line.substring(5);
+				playerName = line;
+			}else if(line.startsWith("cardsOnScreen:")){
+				line = line.substring(14);
+				String[] cards = line.split(";");
+				for(String card : cards){
+					stack.append(card);
+					addCardToScreen();
+				}
+			}else if(line.startsWith("cardsInStack:")){
+				line = line.substring(13);
+				String[] cards = line.split(";");
+				for(String card : cards){
+					stack.append(card);
+				}
 			}
 		}
+		
+		if (scoreBoard[gameStatus == GAME_ORIGINAL ? 1 : 0].length > 0) {
+			highScore = scoreBoard[gameStatus == GAME_ORIGINAL ? 1 : 0][0][1];
+		} else {
+			highScore = "-";
+		}
+		
+		possibleSets = getPossibleSets();
+		
+		forceScreenUpdate = true;
 	}
 	
 	void saveGame(String fileName){
-		String[] out = new String[5];
-		out[0] = "time:" + gameTime;
-		out[1] = "wrongSets:" + wrongSets;
-		out[2] = "name:" + playerName;
-		out[3] = "cardsOnScreen:";
+		if(gameStatus == GAME_OVER)
+			return;
+		String[] out = new String[6];
+		out[0] = "time:" + (getUnixTime()-timerStartTime);
+		out[1] = "gameType:" + (gameStatus == GAME_ORIGINAL ? 1 : 0);
+		out[2] = "wrongSets:" + wrongSets;
+		out[3] = "name:" + playerName;
+		out[4] = "cardsOnScreen:";
 		int idCounter = 100;
 		int butLoc;
 		while((butLoc = getButtonLocation(idCounter)) != -1){
-			out[3] += buttonTxt[butLoc] + ";";
+			out[4] += buttonTxt[butLoc] + ";";
 			idCounter++;
 		}
-		out[4] = "cardsInStack:";
+		out[5] = "cardsInStack:";
 		for(String card : stack){
-			out[4] += card + ";";
+			out[5] += card + ";";
 		}
 		saveStrings(fileName, out);
 		JOptionPane.showMessageDialog(this, "Game is saved.", "Done", JOptionPane.INFORMATION_MESSAGE);
@@ -312,7 +347,7 @@ public class subset extends PApplet {
 	void quit() {
 		backToMenu();
 		stack = null;
-		gameTime = 0;
+		timerStartTime = 0;
 		highScore = null;
 		foundSets = 0;
 		possibleSets = 0;
@@ -508,7 +543,7 @@ public class subset extends PApplet {
 			rect(place.x, place.y, place.width - 1, place.height - 1);
 		}
 		String stats = "";
-		stats += "Current Time: \t" + timeFloatToString(gameTime) + "\n";
+		stats += "Current Time: \t" + getTimerString() + "\n";
 		stats += "Found Sets: " + foundSets + "\n";
 		stats += "Cards in Stacdk: " + stack.size() + "\n";
 		stats += "High Score: " + highScore + "\n";
@@ -593,7 +628,6 @@ public class subset extends PApplet {
 		shuffleStack(stack);
 		
 		timerStartTime = getUnixTime();
-		gameTime = 0;
 		
 		if (scoreBoard[original ? 1 : 0].length > 0) {
 			highScore = scoreBoard[original ? 1 : 0][0][1];
@@ -626,16 +660,11 @@ public class subset extends PApplet {
 		
 		//no set possible: GAME OVER!
 		if(possibleSets == 0 && gameStatus != GAME_OVER){
-			
-			int notFoundSets = (getCardsOnField()+stack.size())/3;
-			float score = gameTime + (gameTime/foundSets)*notFoundSets;
-			score = round(score, 2);
-			
-			addScoreEntry(gameStatus == GAME_ORIGINAL ? 1 : 0, playerName, timeFloatToString(score));
+			addScoreEntry(gameStatus == GAME_ORIGINAL ? 1 : 0, playerName, getTimerString());
 			orderScoreBoard(scoreBoard);
 			saveScoreBoard(scoreBoard, scoresFile);
 			
-			popupTxt = "Game Over! \nScore: " + timeFloatToString(score);
+			popupTxt = "Game Over! \nScore: " + getTimerString();
 			
 			forceScreenUpdate = true;
 			gameStatus = GAME_OVER;
@@ -919,17 +948,19 @@ public class subset extends PApplet {
 	 * TIMER
 	 **********************/
 	
-	void updateGameTimer() {
-		if (gameTime == -1 || gameStatus == GAME_OVER)
-			return;
-		int time = (getUnixTime() - timerStartTime);
-		int minutes = (int) time / 60;
-		int secs = time - (minutes * 60);
-		float newGameTime = round(minutes + (secs / 100f), 2);
-		if (newGameTime != gameTime) {
-			gameTime = newGameTime;
-			forceScreenUpdate = true;
-		}
+	int getTimeSeconds(){
+		return timerStartTime == 0 ? 0 : getUnixTime()-timerStartTime;
+	}
+	
+	String getTimerString(){
+		int time = getTimeSeconds();
+		int minu = (time)/60;
+		int sec = (time)%60;
+		return toTwoDigets(minu) + ":" + toTwoDigets(sec);
+	}
+	
+	String toTwoDigets(int i){
+		return (i<10 ? "0" : "") +i;
 	}
 	
 	/*********************
@@ -999,8 +1030,7 @@ public class subset extends PApplet {
 			do {
 				swiched = false;
 				for (int i = 0; i < list.length - 1; i++) {
-					if (Float.parseFloat(list[i][1].replace(":", ".")) > (Float
-							.parseFloat(list[i + 1][1].replace(":", ".")))) {
+					if (list[i][1].compareTo(list[i+1][1]) > 0) {
 						String[] keep = list[i];
 						list[i] = list[i + 1];
 						list[i + 1] = keep;
@@ -1021,7 +1051,9 @@ public class subset extends PApplet {
 		scoreBoard[board] = newList;
 	}
 	
-	//util!
+	/*********************
+	 * UITL
+	 **********************/
 	
 	int getUnixTime() {
 		return (int) (System.currentTimeMillis() / 1000);
@@ -1029,14 +1061,6 @@ public class subset extends PApplet {
 	
 	float round(float nr, int decimals) {
 		return floor(nr * (pow(10, decimals))) / ((float) (pow(10, decimals)));
-	}
-	
-	String timeFloatToString(float nr) {
-		return (nr + ((getNumbersAfterDot(nr) % 10 == 0) ? "0" : "")).replace(".", ":");
-	}
-	
-	int getNumbersAfterDot(float nr) {
-		return (int) ((nr) * 100)s % 100;
 	}
 	
 	void doSuperSecretStuff() {
