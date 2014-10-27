@@ -52,7 +52,7 @@ public class subset extends PApplet {
 	final char C_BG_PURPLE = 'P';
 	final char C_BG_NONE = 'N';
 	
-	String scoresFile;
+	String scoresFile, gameFile;
 	
 	int backgroundColor = 0;
 	int selectedScreen = SCREEN_MENU;
@@ -71,6 +71,7 @@ public class subset extends PApplet {
 	int foundSets, possibleSets, wrongSets;
 	int[] selectedCards = new int[3];
 	int[] hintSet = null;
+	String playerName = null;
 	
 	int[] draggingCard = null;
 	int[] draggingCardOriginalPos = null;
@@ -93,6 +94,7 @@ public class subset extends PApplet {
 	 **********************/
 	public void setup() {
 		scoresFile = dataPath("high.scores");
+		gameFile = dataPath("saved.game");
 		star = loadImage(dataPath("ster.png"));
 		initScoreBoard();
 		size(800, 600);
@@ -108,13 +110,13 @@ public class subset extends PApplet {
 		// about
 		addButton("Back to Menu", 7, SCREEN_ABOUT, 520, 470, 250, 100, color(160, 0, 0), 255);
 		// game
-		addButton("Save and Quit", 9, SCREEN_GAME, 10, 220, 250, 40, color(160, 0, 0), 255);
+		addButton("Quit", 9, SCREEN_GAME, 10, 220, 120, 40, color(160, 0, 0), 255);
 		addButton("Order Cards", 10, SCREEN_GAME, 10, 270, 250, 40, color(160, 0, 0), 255);
 		addButton("Hint", 11, SCREEN_GAME, 10, 320, 250, 40, color(160, 0, 0), 255);
 		addButton("Give Up", 12, SCREEN_GAME, 10, 370, 250, 40, color(160, 0, 0), 255);
-		addButton("", 13, SCREEN_GAME, 10, height - 50, 250, 40, color(150, 150, 150),
-				255);
+		addButton("", 13, SCREEN_GAME, 10, height - 50, 250, 40, color(150, 150, 150),255);
 		addButton("", 14, SCREEN_MENU, 10, 10, 10, 10, color(0, 0, 0, 0), 0);
+		addButton("Save", 15, SCREEN_GAME, 140, 220, 120, 40, color(160, 0, 0), 255);
 	}
 	
 	public void draw() {
@@ -201,7 +203,7 @@ public class subset extends PApplet {
 				showAboutScreen();
 				break;
 			case 5:
-				loadGame();
+				loadGame(gameFile);
 				break;
 			case 6:
 				backToMenu();
@@ -213,7 +215,7 @@ public class subset extends PApplet {
 				clearScores();
 				break;
 			case 9:
-				saveAndQuit();
+				quit();
 				break;
 			case 10:
 				orderCards();
@@ -229,6 +231,9 @@ public class subset extends PApplet {
 				break;
 			case 14:
 				doSuperSecretStuff();
+				break;
+			case 15:
+				saveGame(gameFile);
 				break;
 		}
 	}
@@ -268,15 +273,43 @@ public class subset extends PApplet {
 		forceScreenUpdate = true;
 	}
 	
-	void loadGame() {}
+	void loadGame(String fileName) {
+		String[] in = loadStrings(fileName);
+		for(String line : in){
+			if(line.startsWith("time:")){
+				line = line.substring(5);
+				gameTime = Integer.parseInt(line);
+				timerStartTime = getUnixTime()-gameTime;
+			}
+		}
+	}
+	
+	void saveGame(String fileName){
+		String[] out = new String[5];
+		out[0] = "time:" + gameTime;
+		out[1] = "wrongSets:" + wrongSets;
+		out[2] = "name:" + playerName;
+		out[3] = "cardsOnScreen:";
+		int idCounter = 100;
+		int butLoc;
+		while((butLoc = getButtonLocation(idCounter)) != -1){
+			out[3] += buttonTxt[butLoc] + ";";
+			idCounter++;
+		}
+		out[4] = "cardsInStack:";
+		for(String card : stack){
+			out[4] += card + ";";
+		}
+		saveStrings(fileName, out);
+		JOptionPane.showMessageDialog(this, "Game is saved.", "Done", JOptionPane.INFORMATION_MESSAGE);
+	}
 	
 	void clearScores() {
 		scoreBoard = new String[2][0][0];
 		forceScreenUpdate = true;
 	}
 	
-	void saveAndQuit() {
-		saveGame("someFile.game");
+	void quit() {
 		backToMenu();
 		stack = null;
 		gameTime = 0;
@@ -338,6 +371,7 @@ public class subset extends PApplet {
 		foundSets++;
 		selectedCards = new int[3];
 		forceScreenUpdate = true;
+		possibleSets = getPossibleSets();
 	}
 	
 	/*********************
@@ -474,7 +508,7 @@ public class subset extends PApplet {
 			rect(place.x, place.y, place.width - 1, place.height - 1);
 		}
 		String stats = "";
-		stats += "Current Time: " + timeFloatToString(gameTime) + "\n";
+		stats += "Current Time: \t" + timeFloatToString(gameTime) + "\n";
 		stats += "Found Sets: " + foundSets + "\n";
 		stats += "Cards in Stacdk: " + stack.size() + "\n";
 		stats += "High Score: " + highScore + "\n";
@@ -546,6 +580,11 @@ public class subset extends PApplet {
 	}
 	
 	void startGame(boolean original) {
+		playerName = JOptionPane.showInputDialog(this, "What  is your name?", "Before we start...", JOptionPane.QUESTION_MESSAGE);
+		if(playerName == null || playerName.equals("") || playerName.length() > 8 || playerName.contains(";") || playerName.contains(":")){
+			playerName = null;
+			return;
+		}
 		gameStatus = (original ? GAME_ORIGINAL : GAME_SIMPLE);
 		selectedScreen = SCREEN_GAME;
 		forceScreenUpdate = true;
@@ -566,6 +605,7 @@ public class subset extends PApplet {
 				addCardToScreen();
 			}
 		}
+		possibleSets = getPossibleSets();
 	}
 	
 	void updateGameInfo(){
@@ -583,17 +623,15 @@ public class subset extends PApplet {
 			buttonData[loc][BUTTON_BGCOLOR] =  color(150, 150, 150);
 			buttonTxt[loc] = "";
 		}
-		possibleSets = getPossibleSets();
 		
 		//no set possible: GAME OVER!
 		if(possibleSets == 0 && gameStatus != GAME_OVER){
-			
 			
 			int notFoundSets = (getCardsOnField()+stack.size())/3;
 			float score = gameTime + (gameTime/foundSets)*notFoundSets;
 			score = round(score, 2);
 			
-			addScoreEntry(gameStatus == GAME_ORIGINAL ? 1 : 0, "Name", timeFloatToString(score));
+			addScoreEntry(gameStatus == GAME_ORIGINAL ? 1 : 0, playerName, timeFloatToString(score));
 			orderScoreBoard(scoreBoard);
 			saveScoreBoard(scoreBoard, scoresFile);
 			
@@ -601,8 +639,6 @@ public class subset extends PApplet {
 			
 			forceScreenUpdate = true;
 			gameStatus = GAME_OVER;
-			
-			JOptionPane.showInputDialog(this, "What  is your name?", "Name", JOptionPane.QUESTION_MESSAGE);
 		}
 	}
 	
@@ -775,10 +811,6 @@ public class subset extends PApplet {
 		return out += amount;
 	}
 	
-	void saveGame(String file) {
-		
-	}
-	
 	void shuffleStack(StringList in) {
 		for (int i = 0; i < in.size() - 1; i++) {
 			int toSwich = floor(random(in.size()));
@@ -847,19 +879,23 @@ public class subset extends PApplet {
 		return isSet(cards);
 	}
 	
+	/**
+	 * Het idee van "het volgende loopje starten op de plek waar de vorigge loop is gestopt" komt van Bram.
+	 * Gewoon een super geniaal idee.
+	 */
 	int getPossibleSets(){
 		hintSet = null;
 		int out = 0;
-		int max = 21; //TODO: make this number dynamic
+		int max = gameStatus == GAME_SIMPLE? 9 : 12;
 		for(int a = 0; a < max; a++){
 			int locA = getButtonLocation(a+100);
 			if(locA == -1)
 				continue;
-			for(int b = 0; b < max; b++){
+			for(int b = a+1; b < max; b++){
 				int locB = getButtonLocation(b+100);
-				if(locB == -1 || locA == locB)
+				if(locB == -1)
 					continue;
-				for(int c = 0; c < max; c++){
+				for(int c = b+1; c < max; c++){
 					int locC = getButtonLocation(c+100);
 					if(locC == -1 || locC == locB || locC == locA)
 						continue;
@@ -872,7 +908,7 @@ public class subset extends PApplet {
 				}
 			}
 		}
-		return out/3;
+		return out;
 	}
 	
 	int getCardsOnField(){
@@ -1000,7 +1036,7 @@ public class subset extends PApplet {
 	}
 	
 	int getNumbersAfterDot(float nr) {
-		return (int) ((nr) * 100) % 100;
+		return (int) ((nr) * 100)s % 100;
 	}
 	
 	void doSuperSecretStuff() {
