@@ -1,6 +1,7 @@
 
 import java.awt.Rectangle;
 import java.io.File;
+import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 
@@ -140,6 +141,7 @@ public class subset extends PApplet {
 				quit();
 			popupTxt = null;
 			forceScreenUpdate = true;
+			return;
 		}
 		int[] but = getButtonAtLocation(mouseX, mouseY, selectedScreen);
 		if(but == null)
@@ -670,6 +672,7 @@ public class subset extends PApplet {
 		if(possibleSets == 0 && gameStatus != GAME_OVER){
 			addScoreEntry(gameStatus == GAME_ORIGINAL ? 1 : 0, playerName, getTimerString());
 			orderScoreBoard(scoreBoard);
+			maximizeScoreBoard(scoreBoard);
 			saveScoreBoard(scoreBoard, scoresFile);
 			
 			popupTxt = "Game Over! \nScore: " + getTimerString();
@@ -1055,6 +1058,14 @@ public class subset extends PApplet {
 		}
 		newList[i] = new String[]{name, score};
 		scoreBoard[board] = newList;
+	}
+	
+	void maximizeScoreBoard(String[][][] board){
+		for(int i = 0; i < board.length; i++){
+			if(board[i].length > 5){
+				board[i] = Arrays.copyOf(board[i], 5);
+			}
+		}
 	}
 	
 	/*********************
