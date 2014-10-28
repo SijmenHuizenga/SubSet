@@ -54,6 +54,8 @@ public class subset extends PApplet {
 	
 	String scoresFile, gameFile;
 	
+	String aboutTxt = null, infoTxt = null;
+	
 	int backgroundColor = 0;
 	int selectedScreen = SCREEN_MENU;
 	int gameStatus = GAME_OFF;
@@ -69,7 +71,7 @@ public class subset extends PApplet {
 	
 	StringList stack;
 	String highScore;
-	int foundSets, possibleSets, wrongSets;
+	int foundSets, possibleSets;
 	int[] selectedCards = new int[3];
 	int[] hintSet = null;
 	String playerName = null;
@@ -109,15 +111,16 @@ public class subset extends PApplet {
 		addButton("Back to Menu", 6, SCREEN_SCORES, 520, 470, 250, 100, color(160, 0, 0), 255);
 		addButton("Clear Scores", 8, SCREEN_SCORES, 30, 470, 250, 100, color(160, 0, 0), 255);
 		// about
-		addButton("Back to Menu", 7, SCREEN_ABOUT, 520, 470, 250, 100, color(160, 0, 0), 255);
+		addButton("Back to Menu", 7, SCREEN_ABOUT, 520, 470, 250, 110, color(160, 0, 0), 255);
+		addButton("\\/", 15, SCREEN_ABOUT, 455, 470, 60, 50, color(160, 0, 0), 255);
+		addButton("/\\", 16, SCREEN_ABOUT, 455, 530, 60, 50, color(160, 0, 0), 255);
 		// game
-		addButton("Quit", 9, SCREEN_GAME, 10, 220, 120, 40, color(160, 0, 0), 255);
+		addButton("Save & Quit", 9, SCREEN_GAME, 10, 220, 250, 40, color(160, 0, 0), 255);
 		addButton("Order Cards", 10, SCREEN_GAME, 10, 270, 250, 40, color(160, 0, 0), 255);
 		addButton("Hint", 11, SCREEN_GAME, 10, 320, 250, 40, color(160, 0, 0), 255);
 		addButton("Give Up", 12, SCREEN_GAME, 10, 370, 250, 40, color(160, 0, 0), 255);
 		addButton("", 13, SCREEN_GAME, 10, height - 50, 250, 40, color(150, 150, 150),255);
 		addButton("", 14, SCREEN_MENU, 10, 10, 10, 10, color(0, 0, 0, 0), 0);
-		addButton("Save", 15, SCREEN_GAME, 140, 220, 120, 40, color(160, 0, 0), 255);
 	}
 	
 	public void draw() {
@@ -134,6 +137,8 @@ public class subset extends PApplet {
 	
 	public void mousePressed() {
 		if(popupTxt != null){
+			if(popupTxt.startsWith("Game Over"))
+				quit();
 			popupTxt = null;
 			forceScreenUpdate = true;
 		}
@@ -213,6 +218,7 @@ public class subset extends PApplet {
 				clearScores();
 				break;
 			case 9:
+				saveGame(gameFile);
 				quit();
 				break;
 			case 10:
@@ -222,7 +228,7 @@ public class subset extends PApplet {
 				giveHint();
 				break;
 			case 12:
-				giveUp();
+				quit();
 				break;
 			case 13:
 				handInSet();
@@ -231,8 +237,12 @@ public class subset extends PApplet {
 				doSuperSecretStuff();
 				break;
 			case 15:
-				saveGame(gameFile);
+				scrollDown();
 				break;
+			case 16:
+				scrollUp();
+				break;
+			
 		}
 	}
 	
@@ -263,7 +273,10 @@ public class subset extends PApplet {
 	void showAboutScreen() {
 		selectedScreen = SCREEN_ABOUT;
 		forceScreenUpdate = true;
-		saveScoreBoard(scoreBoard, dataPath("high.scores"));
+		if(infoTxt == null){
+			infoTxt = loadFileAsString(dataPath("info.txt"));
+			aboutTxt = loadFileAsString(dataPath("about.txt"));
+		}
 	}
 	
 	void backToMenu() {
@@ -283,9 +296,6 @@ public class subset extends PApplet {
 			}else if(line.startsWith("time:")){
 				line = line.substring(5);
 				timerStartTime = getUnixTime()-Integer.parseInt(line);
-			}else if(line.startsWith("wrongSets:")){
-				line = line.substring(10);
-				wrongSets = Integer.parseInt(line);
 			}else if(line.startsWith("name:")){
 				line = line.substring(5);
 				playerName = line;
@@ -322,18 +332,17 @@ public class subset extends PApplet {
 		String[] out = new String[6];
 		out[0] = "time:" + (getUnixTime()-timerStartTime);
 		out[1] = "gameType:" + (gameStatus == GAME_ORIGINAL ? 1 : 0);
-		out[2] = "wrongSets:" + wrongSets;
-		out[3] = "name:" + playerName;
-		out[4] = "cardsOnScreen:";
+		out[2] = "name:" + playerName;
+		out[3] = "cardsOnScreen:";
 		int idCounter = 100;
 		int butLoc;
 		while((butLoc = getButtonLocation(idCounter)) != -1){
-			out[4] += buttonTxt[butLoc] + ";";
+			out[3] += buttonTxt[butLoc] + ";";
 			idCounter++;
 		}
-		out[5] = "cardsInStack:";
+		out[4] = "cardsInStack:";
 		for(String card : stack){
-			out[5] += card + ";";
+			out[4] += card + ";";
 		}
 		saveStrings(fileName, out);
 		JOptionPane.showMessageDialog(this, "Game is saved.", "Done", JOptionPane.INFORMATION_MESSAGE);
@@ -351,7 +360,6 @@ public class subset extends PApplet {
 		highScore = null;
 		foundSets = 0;
 		possibleSets = 0;
-		wrongSets = 0;
 		for (int i = 0; i < buttonData.length; i++)
 			if (buttonData[i] != null)
 				if (buttonData[i][BUTTON_ID] >= 100 && buttonData[i][BUTTON_ID] < 200) {
@@ -548,7 +556,6 @@ public class subset extends PApplet {
 		stats += "Cards in Stacdk: " + stack.size() + "\n";
 		stats += "High Score: " + highScore + "\n";
 		stats += "Possible Sets: " + possibleSets + "\n";
-		stats += "Wrong Sets: " + wrongSets + "\n";
 		textSize(20);
 		textAlign(LEFT, TOP);
 		fill(255);
@@ -606,13 +613,29 @@ public class subset extends PApplet {
 		}
 	}
 	
+	void drawAbout() {
+		background(0);
+		fill(255);
+		textAlign(LEFT, TOP);
+		textSize(15);
+		text(infoTxt, 5, 5, 790, 300);
+	}
+	
+	/*********************
+	 * SCROLLING
+	 **********************/
+	void scrollUp(){
+		
+	}
+	
+	void scrollDown(){
+		
+	}
+	
+	
 	/*********************
 	 * GAME
 	 **********************/
-	
-	void drawAbout() {
-		background(0);
-	}
 	
 	void startGame(boolean original) {
 		playerName = JOptionPane.showInputDialog(this, "What  is your name?", "Before we start...", JOptionPane.QUESTION_MESSAGE);
@@ -949,14 +972,14 @@ public class subset extends PApplet {
 	 **********************/
 	
 	int getTimeSeconds(){
+		if(gameStatus == GAME_OVER)
+			return lastTime;
 		return timerStartTime == 0 ? 0 : getUnixTime()-timerStartTime;
 	}
 	
 	String getTimerString(){
 		int time = getTimeSeconds();
-		int minu = (time)/60;
-		int sec = (time)%60;
-		return toTwoDigets(minu) + ":" + toTwoDigets(sec);
+		return toTwoDigets(time/60) + ":" + toTwoDigets(time%60);
 	}
 	
 	String toTwoDigets(int i){
@@ -1054,6 +1077,15 @@ public class subset extends PApplet {
 	/*********************
 	 * UITL
 	 **********************/
+	
+	String loadFileAsString(String fileName){
+		String[] in = loadStrings(fileName);
+		String out = "";
+		for(String line : in){
+			out += line + "\n";
+		}
+		return out;
+	}
 	
 	int getUnixTime() {
 		return (int) (System.currentTimeMillis() / 1000);
