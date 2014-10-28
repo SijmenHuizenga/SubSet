@@ -95,16 +95,6 @@ public class subset extends PApplet {
 	int textColor = 255;
 	int bgColor = 0;
 	
-	public static void main(String[] args) {
-		new subset();
-	}
-	
-	public subset(){
-		addButton("test1", 3, 2, 50, 100, 150, 200, 255, 15);
-		println(buttonData[0]);
-		println(buttonTxt);
-	}
-	
 	@Override
 	public void keyPressed() {
 		if (debug) {
