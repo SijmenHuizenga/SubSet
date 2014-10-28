@@ -95,6 +95,16 @@ public class subset extends PApplet {
 	int textColor = 255;
 	int bgColor = 0;
 	
+	public static void main(String[] args) {
+		new subset();
+	}
+	
+	public subset(){
+		addButton("test1", 3, 2, 50, 100, 150, 200, 255, 15);
+		println(buttonData[0]);
+		println(buttonTxt);
+	}
+	
 	@Override
 	public void keyPressed() {
 		if (debug) {
@@ -154,7 +164,7 @@ public class subset extends PApplet {
 	public void mousePressed() {
 		if (popupTxt != null) {
 			if (popupTxt.startsWith(gameOverTxt))
-				quit();
+				quitGame();
 			popupTxt = null;
 			forceScreenUpdate = true;
 			return;
@@ -201,7 +211,7 @@ public class subset extends PApplet {
 		return -1;
 	}
 	
-	int getButtonLocation(int id) {
+	int buttonIdToLocation(int id) {
 		for (int i = 0; i < buttonData.length; i++)
 			if (buttonData[i] != null && buttonData[i][BUTTON_ID] == id)
 				return i;
@@ -236,7 +246,7 @@ public class subset extends PApplet {
 				break;
 			case 9:
 				saveGame(gameFile);
-				quit();
+				quitGame();
 				break;
 			case 10:
 				orderCards();
@@ -245,7 +255,7 @@ public class subset extends PApplet {
 				giveHint(2);
 				break;
 			case 12:
-				quit();
+				quitGame();
 				break;
 			case 13:
 				handInSet();
@@ -253,7 +263,8 @@ public class subset extends PApplet {
 			case 14:
 				doSuperSecretStuff();
 				break;
-		
+			default:
+				println("ERRRORORROR: could not start action of button " + buttonID);
 		}
 	}
 	
@@ -351,7 +362,7 @@ public class subset extends PApplet {
 		out[3] = "cardsOnScreen:";
 		int buttonIdCounter = cardIdToButtonId(0);
 		int butLoc;
-		while ((butLoc = getButtonLocation(buttonIdCounter)) != -1) {
+		while ((butLoc = buttonIdToLocation(buttonIdCounter)) != -1) {
 			out[3] += buttonTxt[butLoc] + ";";
 			buttonIdCounter++;
 		}
@@ -369,7 +380,7 @@ public class subset extends PApplet {
 		forceScreenUpdate = true;
 	}
 	
-	void quit() {
+	void quitGame() {
 		backToMenu();
 		stack = null;
 		timerStartTime = 0;
@@ -389,7 +400,7 @@ public class subset extends PApplet {
 		removeAllSelectedCards();
 		int buttonIdCounter = cardIdToButtonId(0);
 		int butLoc;
-		while ((butLoc = getButtonLocation(buttonIdCounter)) != -1) {
+		while ((butLoc = buttonIdToLocation(buttonIdCounter)) != -1) {
 			
 			int[] button = buttonData[butLoc];
 			
@@ -421,7 +432,7 @@ public class subset extends PApplet {
 		if (!isSetSelected())
 			return; // it is not a set.
 		for (int id : selectedCards) {
-			int loc = getButtonLocation(id);
+			int loc = buttonIdToLocation(id);
 			buttonData[loc] = null;
 			buttonTxt[loc] = null;
 			addCardToScreen();
@@ -535,7 +546,7 @@ public class subset extends PApplet {
 				drawGame();
 				break;
 			case SCREEN_SCORES:
-				drawScores();
+				drawScoreScreen();
 				break;
 			case SCREEN_ABOUT:
 				drawAbout();
@@ -577,7 +588,7 @@ public class subset extends PApplet {
 		text(stats, 10, 10);
 	}
 	
-	void drawScores() {
+	void drawScoreScreen() {
 		background(bgColor);
 		String[][] simpleScores = scoreBoard[0];
 		String[][] originalScores = scoreBoard[1];
@@ -652,7 +663,7 @@ public class subset extends PApplet {
 		selectedScreen = SCREEN_GAME;
 		forceScreenUpdate = true;
 		
-		stack = getCardSet(!original);
+		stack = getCardStack(!original);
 		shuffleStack(stack);
 		
 		timerStartTime = getUnixTime();
@@ -671,7 +682,7 @@ public class subset extends PApplet {
 	}
 	
 	void updateGameInfo() {
-		int loc = getButtonLocation(13);
+		int loc = buttonIdToLocation(13);
 		
 		if (!isSelectedSpotFree()) {
 			if (isSetSelected()) {
@@ -748,7 +759,7 @@ public class subset extends PApplet {
 		for (int buttonID : selectedCards) {
 			if (buttonID == 0)
 				continue;
-			int[] button = buttonData[getButtonLocation(buttonID)];
+			int[] button = buttonData[buttonIdToLocation(buttonID)];
 			Rectangle rect = getDefaultCardLocation(buttonIdToCardID(buttonID) / 3,
 					buttonIdToCardID(buttonID) % 3);
 			
@@ -814,14 +825,14 @@ public class subset extends PApplet {
 	
 	int getEmptyCardID() {
 		for (int cardID = 0; cardID <= 100; cardID++) {
-			if (getButtonLocation(cardIdToButtonId(cardID)) == -1) {
+			if (buttonIdToLocation(cardIdToButtonId(cardID)) == -1) {
 				return cardID;
 			}
 		}
 		return -1;
 	}
 	
-	StringList getCardSet(boolean simple) {
+	StringList getCardStack(boolean simple) {
 		StringList out = new StringList();
 		for (int i = 1; i <= 3; i++) {
 			for (int j = 1; j <= 3; j++) {
@@ -945,7 +956,7 @@ public class subset extends PApplet {
 			return false;
 		String[] cards = new String[selectedCards.length];
 		for (int i = 0; i < cards.length; i++) {
-			cards[i] = buttonTxt[getButtonLocation(selectedCards[i])];
+			cards[i] = buttonTxt[buttonIdToLocation(selectedCards[i])];
 		}
 		return isSet(cards);
 	}
@@ -960,15 +971,15 @@ public class subset extends PApplet {
 		int out = 0;
 		int max = gameStatus == GAME_SIMPLE ? 9 : 12;
 		for (int a = 0; a < max; a++) {
-			int locA = getButtonLocation(cardIdToButtonId(a));
+			int locA = buttonIdToLocation(cardIdToButtonId(a));
 			if (locA == -1)
 				continue;
 			for (int b = a + 1; b < max; b++) {
-				int locB = getButtonLocation(cardIdToButtonId(b));
+				int locB = buttonIdToLocation(cardIdToButtonId(b));
 				if (locB == -1)
 					continue;
 				for (int c = b + 1; c < max; c++) {
-					int locC = getButtonLocation(cardIdToButtonId(c));
+					int locC = buttonIdToLocation(cardIdToButtonId(c));
 					if (locC == -1 || locC == locB || locC == locA)
 						continue;
 					if (isSet(new String[] { buttonTxt[locA], buttonTxt[locB], buttonTxt[locC] })) {
@@ -981,10 +992,6 @@ public class subset extends PApplet {
 			}
 		}
 		return out;
-	}
-	
-	int getCardsOnField() {
-		return (gameStatus == GAME_SIMPLE ? 27 : 81) - (stack.size() + (3 * foundSets));
 	}
 	
 	/*********************
