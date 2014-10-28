@@ -52,9 +52,9 @@ public class subset extends PApplet {
 	final char C_BG_PURPLE = 'P';
 	final char C_BG_NONE = 'N';
 	
-	String scoresFile, gameFile;
+	String scoresFile, gameFile, infoTxtFile;
 	
-	String aboutTxt = null, infoTxt = null;
+	String infoTxt = null;
 	
 	int backgroundColor = 0;
 	int selectedScreen = SCREEN_MENU;
@@ -99,6 +99,7 @@ public class subset extends PApplet {
 		scoresFile = dataPath("high.scores");
 		gameFile = dataPath("saved.game");
 		star = loadImage(dataPath("ster.png"));
+		infoTxtFile = dataPath("info.txt");
 		initScoreBoard();
 		size(800, 600);
 		// menu buttons
@@ -112,8 +113,6 @@ public class subset extends PApplet {
 		addButton("Clear Scores", 8, SCREEN_SCORES, 30, 470, 250, 100, color(160, 0, 0), 255);
 		// about
 		addButton("Back to Menu", 7, SCREEN_ABOUT, 520, 470, 250, 110, color(160, 0, 0), 255);
-		addButton("\\/", 15, SCREEN_ABOUT, 455, 470, 60, 50, color(160, 0, 0), 255);
-		addButton("/\\", 16, SCREEN_ABOUT, 455, 530, 60, 50, color(160, 0, 0), 255);
 		// game
 		addButton("Save & Quit", 9, SCREEN_GAME, 10, 220, 250, 40, color(160, 0, 0), 255);
 		addButton("Order Cards", 10, SCREEN_GAME, 10, 270, 250, 40, color(160, 0, 0), 255);
@@ -236,12 +235,6 @@ public class subset extends PApplet {
 			case 14:
 				doSuperSecretStuff();
 				break;
-			case 15:
-				scrollDown();
-				break;
-			case 16:
-				scrollUp();
-				break;
 			
 		}
 	}
@@ -274,8 +267,7 @@ public class subset extends PApplet {
 		selectedScreen = SCREEN_ABOUT;
 		forceScreenUpdate = true;
 		if(infoTxt == null){
-			infoTxt = loadFileAsString(dataPath("info.txt"));
-			aboutTxt = loadFileAsString(dataPath("about.txt"));
+			infoTxt = loadFileAsString(infoTxtFile);
 		}
 	}
 	
@@ -285,6 +277,10 @@ public class subset extends PApplet {
 	}
 	
 	void loadGame(String fileName) {
+		if(!new File(fileName).exists()){
+			JOptionPane.showMessageDialog(this, "No saved file.", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 		selectedScreen = SCREEN_GAME;
 		stack = new StringList();
 		
@@ -620,18 +616,6 @@ public class subset extends PApplet {
 		textSize(15);
 		text(infoTxt, 5, 5, 790, 300);
 	}
-	
-	/*********************
-	 * SCROLLING
-	 **********************/
-	void scrollUp(){
-		
-	}
-	
-	void scrollDown(){
-		
-	}
-	
 	
 	/*********************
 	 * GAME
