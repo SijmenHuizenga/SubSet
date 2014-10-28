@@ -392,6 +392,7 @@ public class subset extends PApplet {
 		for(int buttonLoc : hintSet){
 			addSelectedCard(buttonData[buttonLoc]);
 		}
+		forceScreenUpdate = true;
 	}
 	
 	void giveUp() {}
@@ -722,13 +723,11 @@ public class subset extends PApplet {
 	}
 	
 	void removeAllSelectedCards(){
-		
 		for(int buttonID : selectedCards){
 			if(buttonID == 0)
 				continue;
 			int[] button = buttonData[getButtonLocation(buttonID)];
-			
-			Rectangle rect = getDefaultCardLocation((buttonID)/3, (buttonID)%3);
+			Rectangle rect = getDefaultCardLocation((buttonID-100)/3, (buttonID-100)%3);
 			
 			button[BUTTON_X] = rect.x;
 			button[BUTTON_Y] = rect.y;
