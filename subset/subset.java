@@ -1116,10 +1116,6 @@ public class subset extends PApplet {
 		return (int) (System.currentTimeMillis() / 1000);
 	}
 	
-	float round(float nr, int decimals) {
-		return floor(nr * (pow(10, decimals))) / ((float) (pow(10, decimals)));
-	}
-	
 	void doSuperSecretStuff() {
 		noStroke();
 		String[] x = superSeceretString.split(";");
