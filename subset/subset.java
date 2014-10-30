@@ -771,7 +771,7 @@ public class subset extends PApplet {
 		return false;
 	}
 	
-	boolean isSet(String[] cards) {
+	boolean isSet(String... cards) {
 		for (int i = 0; i < cards[0].length(); i++) {
 			String curCheck = "";
 			for (int j = 0; j < cards.length; j++) {
@@ -882,10 +882,8 @@ public class subset extends PApplet {
 	}
 	
 	void shuffleStack(StringList in) {
-		for (int i = 0; i < in.size() - 1; i++) {
-			int toSwich = floor(random(in.size()));
-			if (i == toSwich)
-				continue;
+		for (int i = 0; i < in.size(); i++) {
+			int toSwich = floor(random(in.size()-i))+i;
 			String tmp = in.get(i);
 			in.set(i, in.get(toSwich));
 			in.set(toSwich, tmp);
