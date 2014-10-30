@@ -120,15 +120,16 @@ void orderScoreBoard(String[][][] board) {
     do {
       swiched = false;
       for (int i = 0; i < list.length - 1; i++) {
-        if (list[i][1].compareTo(list[i + 1][1]) > 0) {
+        float numberA = float(list[i][1].replace(":", "."));
+        float numberB = float(list[i+1][1].replace(":", "."));
+        if (numberA > numberB) {
           String[] keep = list[i];
           list[i] = list[i + 1];
           list[i + 1] = keep;
           swiched = true;
         }
       }
-    } 
-    while (swiched);
+    } while (swiched);
   }
 }
 void saveScoreBoard(String[][][] board, String file) {

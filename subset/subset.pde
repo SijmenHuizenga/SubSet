@@ -81,7 +81,7 @@ String[][][] scoreBoard;
 PImage star;
 
 //use this variable to test the thing.
-boolean debug = false;
+boolean debug = true;
 
 int screenWidth = 800, screenHeight = 600;
 
