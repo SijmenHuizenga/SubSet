@@ -3,7 +3,7 @@ void drawAbout() {
   fill(textColor);
   textAlign(LEFT, TOP);
   textSize(15);
-  text(infoTxt, 5, 5, 790, 300);
+  text(infoTxt, 5, 5, 790, 500);
 }
 
 void drawMenu() {
