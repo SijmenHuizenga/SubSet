@@ -13,7 +13,7 @@ void drawGame() {
   String stats = "";
   stats += "Current Time: \t" + getTimerString() + "\n";
   stats += "Found Sets: " + foundSets + "\n";
-  stats += "Cards in Stacdk: " + stack.size() + "\n";
+  stats += "Cards in Stack: " + stack.size() + "\n";
   stats += "High Score: " + highScore + "\n";
   stats += "Possible Sets: " + possibleSets + "\n";
   textSize(20);
@@ -56,6 +56,7 @@ void loadGame(String fileName) {
     return;
   }
   selectedScreen = SCREEN_GAME;
+  int cardsOnScreenAmount = 0;
   stack = new StringList();
 
   String[] in = loadStrings(fileName);
@@ -73,13 +74,18 @@ void loadGame(String fileName) {
       line = line.substring(14);
       String[] cards = line.split(";");
       for (String card : cards) {
+        if(card.equals(""))
+           continue;
         stack.append(card);
         addCardToScreen();
+        cardsOnScreenAmount++;
       }
     } else if (line.startsWith("cardsInStack:")) {
       line = line.substring(13);
       String[] cards = line.split(";");
       for (String card : cards) {
+        if(card.equals(""))
+          continue;
         stack.append(card);
       }
     }
@@ -90,7 +96,7 @@ void loadGame(String fileName) {
   } else {
     highScore = "-";
   }
-
+  foundSets = ((gameStatus == GAME_ORIGINAL ? 81 : 27)-(stack.size()+cardsOnScreenAmount))/3;
   possibleSets = getPossibleSets();
 
   forceScreenUpdate = true;
@@ -115,16 +121,17 @@ void quitGame() {
 void saveGame(String fileName) {
   if (gameStatus == GAME_OVER)
     return;
-  String[] out = new String[6];
+  String[] out = new String[5];
   out[0] = "time:" + (getUnixTime() - timerStartTime);
   out[1] = "gameType:" + (gameStatus == GAME_ORIGINAL ? 1 : 0);
   out[2] = "name:" + playerName;
   out[3] = "cardsOnScreen:";
-  int buttonIdCounter = cardIdToButtonId(0);
-  int butLoc;
-  while ( (butLoc = buttonIdToLocation (buttonIdCounter)) != -1) {
+  
+  for(int buttonIdCounter = cardIdToButtonId(0); buttonIdCounter < cardIdToButtonId(12); buttonIdCounter++){
+    int butLoc = buttonIdToLocation(buttonIdCounter);
+    if(butLoc == -1)
+       continue;
     out[3] += buttonTxt[butLoc] + ";";
-    buttonIdCounter++;
   }
   out[4] = "cardsInStack:";
   for (String card : stack) {
