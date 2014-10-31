@@ -3,11 +3,11 @@ The goal of the game is to find three cards that form a so called 'set'. If you 
 This will continue until there are no more sets to be found. 
 
 Every card has a few propertys. In simple mode, there are three:
-•     The amount (1, 2, 3)
-•     The shape (square, triangle, round)
-•     The color of the shape (red, yellow, blue)
+*     The amount (1, 2, 3)
+*     The shape (square, triangle, round)
+*     The color of the shape (red, yellow, blue)
 In the original version there is one more property:
-•     The background color of the card (orange, green, purple)
+*     The background color of the card (orange, green, purple)
 A set is a valid set when every property individualy for every card is totally different or all the same. (good luck!)
 
 When you do not know what to do, you can press the "Hint" button.
